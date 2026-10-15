@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Arena Sport</title>
+</head>
+<body>
+<header>
+  <a href="beranda.html"><img src="./assets/images/logo.png" alt="Arena Sport" width="120"></a>
+</header>
+
+<main>
+  <p>Booking cepat, realtime</p>
+  <h1>Selamat Datang Kembali!</h1>
+  <p>Masuk untuk reservasi lapangan futsal &amp; badminton favoritmu.</p>
+
+  <!-- Pesan error (tampilkan hanya jika login gagal) -->
+  <section role="alert">
+    <strong>Autentikasi Gagal</strong>
+    <p>Email atau kata sandi salah. Silakan periksa kembali data Anda.</p>
+  </section>
+
+  <form action="beranda.html" method="get">
+    <fieldset>
+      <legend>Data Login</legend>
+      <p>
+        <label for="email">Email atau Nomor HP</label><br>
+        <input type="text" id="email" name="email" placeholder="contoh: atlet@arenasport.id" required>
+      </p>
+      <p>
+        <label for="pw">Kata Sandi</label>
+        <a href="#">Lupa Kata Sandi?</a><br>
+        <input type="password" id="pw" name="password" aria-describedby="pw-error" required>
+      </p>
+      <p id="pw-error">Kata sandi tidak sesuai. Sisa 2 percobaan.</p>
+      <p>
+        <input type="checkbox" id="ingat" name="ingat">
+        <label for="ingat">Ingat saya di perangkat ini</label>
+      </p>
+    </fieldset>
+    <p>Koneksi dilindungi enkripsi SSL.</p>
+    <button type="submit">Masuk Sekarang</button>
+    <p>atau masuk dengan</p>
+    <button type="button">Google</button>
+  </form>
+
+  <aside>
+    <h2>Arena Futsal - Lapangan A</h2>
+    <p>Hot slot: tersedia slot malam ini (19:00 - 21:00)</p>
+  </aside>
+
+  <p>Belum punya akun? <a href="register.html">Daftar Sekarang</a></p>
+</main>
+
+<footer>
+  <a href="#">Pusat Bantuan</a> |
+  <a href="#">Syarat &amp; Ketentuan</a>
+</footer>
+</body>
+</html>

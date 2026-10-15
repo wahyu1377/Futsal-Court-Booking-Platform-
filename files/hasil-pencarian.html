@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasil Pencarian - Arena Sport</title>
+</head>
+<body>
+<header>
+  <a href="beranda.html"><img src="./assets/images/logo.png" alt="Arena Sport" width="120"></a>
+</header>
+
+<main>
+  <h1>Hasil Pencarian</h1>
+
+  <form action="hasil-pencarian.html" method="get">
+    <label for="q">Cari lapangan</label>
+    <input type="search" id="q" name="q" value="Futsal Jakarta Selatan">
+    <button type="submit">Cari</button>
+  </form>
+
+  <p>Filter aktif: Cilandak, Futsal, Indoor AC, Parkir, Mushola, Malam</p>
+
+  <details>
+    <summary>Filter (5)</summary>
+    <form action="hasil-pencarian.html" method="get">
+      <h2>Filter Pencarian</h2>
+
+      <fieldset>
+        <legend>Wilayah</legend>
+        <label for="wilayah">Pilih wilayah</label>
+        <select id="wilayah" name="wilayah">
+          <option value="semua">Semua wilayah</option>
+          <option value="cilandak" selected>Cilandak</option>
+          <option value="kebayoran-baru">Kebayoran Baru</option>
+          <option value="pasar-minggu">Pasar Minggu</option>
+        </select>
+      </fieldset>
+
+      <fieldset>
+        <legend>Jenis Olahraga (pilih 1 cabang)</legend>
+        <label><input type="radio" name="olahraga" value="semua"> Semua</label><br>
+        <label><input type="radio" name="olahraga" value="futsal" checked> Futsal</label><br>
+        <label><input type="radio" name="olahraga" value="mini-soccer"> Mini Soccer</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fasilitas Venue</legend>
+        <label><input type="checkbox" name="fasilitas" value="ac" checked> Indoor AC</label><br>
+        <label><input type="checkbox" name="fasilitas" value="parkir" checked> Parkir Luas</label><br>
+        <label><input type="checkbox" name="fasilitas" value="kantin"> Kantin Minuman</label><br>
+        <label><input type="checkbox" name="fasilitas" value="mushola" checked> Mushola Bersih</label><br>
+        <label><input type="checkbox" name="fasilitas" value="loker"> Loker &amp; Shower Air Hangat</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Rentang Harga per Jam</legend>
+        <label for="min">Harga minimum (Rp 50.000)</label>
+        <input type="range" id="min" name="min" min="0" max="500000" step="10000" value="50000"><br>
+        <label for="max">Harga maksimum (Rp 250.000)</label>
+        <input type="range" id="max" name="max" min="0" max="500000" step="10000" value="250000">
+      </fieldset>
+
+      <fieldset>
+        <legend>Waktu Main (Prime Time)</legend>
+        <label><input type="radio" name="waktu" value="pagi"> Pagi 06:00 - 12:00</label><br>
+        <label><input type="radio" name="waktu" value="siang"> Siang 12:00 - 18:00</label><br>
+        <label><input type="radio" name="waktu" value="malam" checked> Malam 18:00 - 24:00</label>
+      </fieldset>
+
+      <button type="submit">Terapkan 5 Filter</button>
+      <button type="reset">Reset</button>
+    </form>
+  </details>
+
+  <p><strong>14</strong> lapangan ditemukan di Jakarta Selatan</p>
+  <p>
+    <label for="urutan">Urutkan</label>
+    <select id="urutan" name="urutan">
+      <option value="jarak">Jarak Terdekat</option>
+      <option value="harga">Harga Terendah</option>
+      <option value="rating">Rating Tertinggi</option>
+    </select>
+  </p>
+
+  <article>
+    <img src="./assets/images/lapangan-futsal-outdoor.webp" alt="Mega Futsal &amp; Mini Soccer" width="400">
+    <h2>Mega Futsal &amp; Mini Soccer</h2>
+    <p>Indoor, 2 lapangan, vinyl standar FIFA <button type="button">Simpan</button></p>
+    <p>1.2 km dari Anda</p>
+    <p>Rating 4.9 (142 ulasan), TB Simatupang, Cilandak</p>
+    <ul>
+      <li>Parkir Luas</li>
+      <li>Toilet Bersih</li>
+      <li>Kantin Minum</li>
+    </ul>
+    <p>Sisa 3 jam hari ini (19.00, 20.00, 21.00)</p>
+    <p>Tarif sewa: <strong>Rp175.000</strong> / jam</p>
+    <p><a href="detail-jadwal.html">Pesan Sekarang</a></p>
+  </article>
+
+  <article>
+    <img src="./assets/images/meadowbank-multisport-arena.webp" alt="Tibeta Futsal Center" width="400">
+    <h2>Tibeta Futsal Center</h2>
+    <p>Sintetis, ventilasi AC <button type="button">Simpan</button></p>
+    <p>2.4 km dari Anda</p>
+    <p>Rating 4.7 (89 ulasan), Cilandak Barat</p>
+    <ul>
+      <li>Parkir</li>
+      <li>Loker Kunci</li>
+      <li>Mushola</li>
+    </ul>
+    <p>Tersedia mulai 19.00 WIB</p>
+    <p>Tarif sewa: <strong>Rp140.000</strong> / jam</p>
+    <p><a href="detail-jadwal.html">Pesan Sekarang</a></p>
+  </article>
+
+  <article>
+    <img src="./assets/images/atap-lapangan-futsal.webp" alt="Gelora Futsal Cilandak" width="400">
+    <h2>Gelora Futsal Cilandak</h2>
+    <p>Vinyl court, lampu LED <button type="button">Simpan</button></p>
+    <p>3.1 km dari Anda</p>
+    <p>Rating 4.6 (64 ulasan), Fatmawati, Cilandak</p>
+    <ul>
+      <li>Parkir Motor</li>
+      <li>Kamar Mandi</li>
+      <li>WiFi</li>
+    </ul>
+    <p>Tarif sewa: <strong>Rp160.000</strong> / jam</p>
+    <p><a href="detail-jadwal.html">Pesan Sekarang</a></p>
+  </article>
+</main>
+
+<nav>
+  <ul>
+    <li><a href="beranda.html">Beranda</a></li>
+    <li><a href="hasil-pencarian.html">Favorit</a></li>
+    <li><a href="akun.html">Pesanan</a></li>
+    <li><a href="akun.html">Akun</a></li>
+  </ul>
+</nav>
+</body>
+</html>

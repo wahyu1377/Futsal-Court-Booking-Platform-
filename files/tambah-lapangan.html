@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tambah Lapangan - Arena Sport</title>
+</head>
+<body>
+<header><a href="beranda.html"><img src="./assets/images/logo.png" alt="Arena Sport" width="120"></a></header>
+
+<main>
+<h1>Tambah Lapangan</h1>
+<ol><li><strong>1. Info Dasar</strong></li><li>2. Fasilitas &amp; Harga</li><li>3. Jadwal &amp; Foto</li></ol>
+<!-- Desain SVG tidak terbaca; field di bawah adalah asumsi umum "Info Dasar" -->
+<form action="#" method="get">
+  <fieldset>
+    <legend>Informasi Dasar Lapangan</legend>
+    <p><label for="nama">Nama Lapangan / Venue</label><br><input type="text" id="nama" name="nama" required></p>
+    <p><label for="olahraga">Jenis Olahraga</label><br>
+    <select id="olahraga" name="olahraga"><option>Futsal</option><option>Mini Soccer</option><option>Badminton</option><option>Basket</option></select></p>
+    <p><label for="lantai">Jenis Lantai</label><br>
+    <select id="lantai" name="lantai"><option>Vinyl</option><option>Rumput Sintetis</option><option>Parket</option></select></p>
+    <p><label for="alamat">Alamat Lengkap</label><br><textarea id="alamat" name="alamat" rows="3" required></textarea></p>
+    <p><label for="kota">Kota / Kecamatan</label><br><input type="text" id="kota" name="kota"></p>
+    <p><label for="desk">Deskripsi</label><br><textarea id="desk" name="deskripsi" rows="4"></textarea></p>
+  </fieldset>
+  <a href="akun.html">Batal</a> <button type="submit">Lanjut →</button>
+</form>
+</main>
+
+<footer>
+<nav>
+  <a href="beranda.html">Beranda</a> |
+  <a href="hasil-pencarian.html">Favorit</a> |
+  <a href="akun.html">Pesanan</a> |
+  <a href="akun.html">Akun</a>
+</nav>
+</footer>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-fixed": "#131b2e", "on-error-container": "#93000a", "on-primary": "#ffffff", "surface-bright": "#f8f9ff", "surface-variant": "#d3e4fe", "outline-variant": "#bccac0", "tertiary": "#006947", "on-primary-fixed": "#002114", "primary-fixed": "#85f8c4", "on-secondary": "#ffffff", "background": "#f8f9ff", "surface-dim": "#cbdbf5", "surface-container": "#e5eeff", "surface-container-lowest": "#ffffff", "on-tertiary-fixed-variant": "#005236", "inverse-primary": "#68dba9", "tertiary-container": "#00855b", "on-tertiary-fixed": "#002113", "secondary-fixed-dim": "#bec6e0", "on-primary-container": "#f5fff7", "surface-container-highest": "#d3e4fe", "on-background": "#0b1c30", "surface-container-high": "#dce9ff", "surface-container-low": "#eff4ff", "tertiary-fixed-dim": "#4edea3", "secondary-container": "#dae2fd", "error": "#ba1a1a", "inverse-on-surface": "#eaf1ff", "error-container": "#ffdad6", "primary": "#006948", "surface": "#f8f9ff", "inverse-surface": "#213145", "on-tertiary-container": "#f5fff6", "on-tertiary": "#ffffff", "on-primary-fixed-variant": "#005137", "tertiary-fixed": "#6ffbbe", "on-secondary-container": "#5c647a", "secondary-fixed": "#dae2fd", "on-error": "#ffffff", "surface-tint": "#006c4a", "secondary": "#565e74", "primary-container": "#00855d", "on-surface-variant": "#3d4a42", "outline": "#6d7a72", "on-surface": "#0b1c30", "primary-fixed-dim": "#68dba9", "on-secondary-fixed-variant": "#3f465c" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-md": "1rem", "margin": "2rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin-sm": "1rem", "gutter-sm": "1rem", "space-xl": "2rem", "gutter": "1.5rem" }, fontFamily: { "body-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "display-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "title-sm": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "title-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "label-xs": ["Plus Jakarta Sans"] }, fontSize: { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "700" }], "title-sm": ["14px", { "lineHeight": "20px", "fontWeight": "600" }], "headline-lg-mobile": ["26px", { "lineHeight": "34px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-sm": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-xs": ["10px", { "lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "700" }] } } } };</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter-sm flex items-center justify-between"><div class="flex items-center gap-space-sm"><button class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="ARENA SPORT Brand Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1U3JBwsoG_O387dr91xD3Xm7USr8CbnJs4JFffLCyRogBe9fWKF5YpGAKO-jRJA4tV2y2crue07SGswTuWt3VZhmgTUHQTBwSHN8PCBHbJG92SHQCwbx9xxZOd3tkohcnQMgX6Ey98ZVibEGW9gjG4wdc_bxTTlhl3Ec4NLB15QylwPtE-UQjdNz8217h1rY5eHsBgp8VZetfvbP6G0uSKyAFR4WjSnbihHe0dQ6QsmoxbKBUVg4G_Q-ukJ"/><h1 class="font-title-md text-title-md text-on-surface truncate max-w-[180px]">Checkout Booking</h1></div><div class="flex items-center gap-space-xs"><button class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[22px]">bookmark_border</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6A9wOjSsTGzs_uWtYWWrjjTlKrn928aturiKQlJjy9IpDaJElAV4l0fUvk5NZmRALLDMxI8YBU99F743RBwmZMch614lguS6qV6cDKStdhsjqXU6P1CWyO4QyVmRmHUrBb6YKJG1ovR0Qj9sYSwSsHhOH1q_WKDkMKVVR3t8oe3HkQp166BI9Tqv5C8Vh8Lb-SxDeKiILvvhyVtjraue2yZ8B8aGFJCpjmhLFdh0kSmeef96hd0FFhg"/></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="px-gutter-sm pt-space-md pb-space-lg flex flex-col gap-space-lg">
+<!-- Stepper Indicator -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-sm">
+<div class="flex items-center justify-between relative">
+<div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-[2px] bg-surface-container-high z-0"></div>
+<div class="absolute left-6 w-1/2 top-1/2 -translate-y-1/2 h-[2px] bg-primary z-0"></div>
+<!-- Step 1: Done -->
+<div class="flex flex-col items-center gap-space-xs z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<span class="font-label-xs text-label-xs text-primary font-bold">1. Kontak</span>
+</div>
+<!-- Step 2: Active -->
+<div class="flex flex-col items-center gap-space-xs z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md shadow-sm animate-pulse">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">fiber_manual_record</span>
+</div>
+<span class="font-label-xs text-label-xs text-on-surface font-bold">2. Detail</span>
+</div>
+<!-- Step 3: Upcoming -->
+<div class="flex flex-col items-center gap-space-xs z-10">
+<div class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">radio_button_unchecked</span>
+</div>
+<span class="font-label-xs text-label-xs text-secondary">3. Bayar</span>
+</div>
+</div>
+</div>
+<!-- Booking Header Match Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="relative w-full h-32 bg-cover bg-center" data-alt="High-performance indoor futsal stadium under bright LED arena lights, pristine polished green vinyl pitch with sharp boundary white lines, modern athletic goalposts, professional sports photography, dynamic mood with emerald and deep slate tones" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHgjKH61zpKPBk13EHqmiObZL05-pp-Pjcr9DR7OOHNEOfV12DAdDRsHwKN_dW__opPVDS38UBqEDXvVZrgwzD_Cq6hAhIFTQFqKxR4I9FvBnd1t6v-SS4zi5mE7jQ0TnnmeLWEA-ADEYHrvlTqNwltdfKHgkl1ge8xJw77rd9BrXW8jbC5lujtTgJ_6_cpox_PMkNU1ePA0ZmpyIpfNdXN7g9UmaOgGGV-BBqW08Lc1lKuRBIV4qNBw')">
+<div class="absolute inset-0 bg-gradient-to-t from-on-background via-on-background/60 to-transparent"></div>
+<div class="absolute top-space-sm right-space-sm">
+<span class="bg-primary/90 backdrop-blur-md text-on-primary font-label-xs text-label-xs px-space-sm py-1 rounded-full uppercase tracking-wider font-extrabold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px]">verified</span> #BKG-9921
+          </span>
+</div>
+<div class="absolute bottom-space-sm left-space-md right-space-md text-on-primary">
+<span class="font-label-xs text-label-xs text-primary-fixed uppercase tracking-wider font-bold">Futsal Vinyl Pro A</span>
+<h2 class="font-headline-sm text-headline-sm text-on-primary font-bold truncate">Champion Futsal Arena</h2>
+</div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs bg-surface-container-low">
+<div class="flex items-center gap-space-sm text-on-surface">
+<span class="material-symbols-outlined text-primary text-[20px]">calendar_today</span>
+<span class="font-title-sm text-title-sm font-semibold">Selasa, 22 Okt 2024</span>
+</div>
+<div class="flex items-center justify-between text-secondary">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+<span class="font-body-md text-body-md text-on-surface-variant">19.00 - 21.00 WIB</span>
+</div>
+<span class="bg-surface-container text-on-surface-variant font-label-xs text-label-xs px-space-sm py-0.5 rounded-full font-bold">
+            Durasi: 2 Jam
+          </span>
+</div>
+</div>
+</div>
+<!-- Accordion Section (Interactive Form Module) -->
+<div class="flex flex-col gap-space-md">
+<!-- Accordion 1: Data Kontak (Collapsed/Tervalidasi) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all duration-200">
+<button class="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-1">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">1. Data Kontak Penyewa</span>
+<span class="bg-primary/10 text-primary font-label-xs text-label-xs px-space-xs py-0.5 rounded-full font-bold">Tervalidasi ✓</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary truncate">Bambang Pamungkas • Garuda FC</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px] transform transition-transform duration-200" id="acc-icon-1">expand_more</span>
+</button>
+<div class="hidden px-space-md pb-space-md pt-space-xs border-t-0 bg-surface-container-lowest" id="acc-content-1">
+<div class="grid grid-cols-1 gap-space-sm p-space-md rounded-lg bg-surface-container-low">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-secondary">Nama Lengkap</span>
+<span class="text-on-surface font-semibold">Bambang Pamungkas</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-secondary">Nomor WhatsApp</span>
+<span class="text-on-surface font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]">call</span> 0812-3456-7890
+              </span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<span class="text-secondary">Komunitas / Tim</span>
+<span class="text-on-surface font-semibold">Garuda FC</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Accordion 2: Opsi Tambahan (Expanded by default) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all duration-200">
+<button class="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-2">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">sports_soccer</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">2. Opsi Tambahan</span>
+<span class="bg-secondary-container text-on-secondary-container font-label-xs text-label-xs px-space-xs py-0.5 rounded-full font-bold" id="addon-badge">2 Dipilih</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">Rompi, wasit &amp; kelengkapan match</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px] transform rotate-180 transition-transform duration-200" id="acc-icon-2">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md flex flex-col gap-space-sm" id="acc-content-2">
+<!-- Option 1: Rompi (Checked) -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer select-none">
+<input checked="" class="mt-1 w-5 h-5 rounded text-primary focus:ring-0 accent-primary cursor-pointer" id="check-rompi" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">Sewa Rompi Latihan</span>
+<span class="font-label-sm text-label-sm text-primary font-bold whitespace-nowrap">+Rp 30.000</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">12 pcs Rompi Neon/Oranye berstandar</p>
+</div>
+</label>
+<!-- Option 2: Wasit (Unchecked) -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer select-none">
+<input class="mt-1 w-5 h-5 rounded text-primary focus:ring-0 accent-primary cursor-pointer" id="check-wasit" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">Jasa Wasit Pertandingan</span>
+<span class="font-label-sm text-label-sm text-secondary font-bold whitespace-nowrap">+Rp 100.000</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">2 Jam Berlisensi Askot Futsal</p>
+</div>
+</label>
+<!-- Option 3: Bola Tambahan (Checked & Free) -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer select-none">
+<input checked="" class="mt-1 w-5 h-5 rounded text-primary focus:ring-0 accent-primary cursor-pointer" id="check-bola" type="checkbox"/>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">Bola Futsal Tambahan</span>
+<span class="bg-primary-fixed text-on-primary-fixed font-label-xs text-label-xs px-2 py-0.5 rounded-full font-bold uppercase">Gratis</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">2 buah bola match standar FIFA</p>
+</div>
+</label>
+</div>
+</div>
+<!-- Accordion 3: Metode Pembayaran (Expanded) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden transition-all duration-200">
+<button class="w-full p-space-md flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-3">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold">3. Metode Pembayaran</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary truncate">Pilih opsi pelunasan instan</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-secondary text-[24px] transform rotate-180 transition-transform duration-200" id="acc-icon-3">expand_more</span>
+</button>
+<div class="px-space-md pb-space-md flex flex-col gap-space-sm" id="acc-content-3">
+<!-- Method 1: QRIS Instant (Selected) -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-all select-none">
+<input checked="" class="mt-1 w-5 h-5 text-primary focus:ring-0 accent-primary cursor-pointer" name="payment-method" type="radio" value="qris"/>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-title-sm text-title-sm text-on-surface font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-primary text-[18px]">qr_code_scanner</span>
+                  QRIS / Instan
+                </span>
+<span class="bg-primary/10 text-primary font-label-xs text-label-xs px-space-xs py-0.5 rounded-full font-bold">Otomatis Terverifikasi</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">BCA, Mandiri, GoPay, ShopeePay, OVO</p>
+</div>
+</label>
+<!-- Method 2: VA Bank -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-all select-none">
+<input class="mt-1 w-5 h-5 text-primary focus:ring-0 accent-primary cursor-pointer" name="payment-method" type="radio" value="va"/>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-title-sm text-title-sm text-on-surface font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[18px]">account_balance</span>
+                  Virtual Account Bank
+                </span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">BCA, Mandiri, BRI, BNI (Bebas Biaya Admin)</p>
+</div>
+</label>
+<!-- Method 3: Pay at venue (DP 50%) -->
+<label class="flex items-start gap-space-md p-space-md rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-all select-none">
+<input class="mt-1 w-5 h-5 text-primary focus:ring-0 accent-primary cursor-pointer" name="payment-method" type="radio" value="onsite"/>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<span class="font-title-sm text-title-sm text-on-surface font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[18px]">storefront</span>
+                  Pembayaran di Lapangan
+                </span>
+<span class="bg-surface-container text-on-surface-variant font-label-xs text-label-xs px-space-xs py-0.5 rounded-full font-bold">DP 50%</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-0.5">DP via transfer, pelunasan sisa di kasir arena</p>
+</div>
+</label>
+</div>
+</div>
+</div>
+<!-- Security & Guarantee Notice -->
+<div class="p-space-md bg-surface-container-low rounded-xl flex items-center gap-space-md text-secondary">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">security</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-title-sm text-title-sm text-on-surface font-bold">Jaminan Booking 100% Sah</h4>
+<p class="font-body-sm text-body-sm text-secondary">Jadwal Anda langsung terkunci secara resmi di sistem Arena.</p>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Price Breakdown Drawer & Action -->
+<div class="sticky bottom-0 left-0 right-0 bg-surface-container-lowest shadow-[0_-8px_20px_rgba(0,0,0,0.06)] rounded-t-2xl p-space-md flex flex-col gap-space-md z-40">
+<!-- Price Breakdown Panel -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex justify-between items-center text-body-sm font-body-md text-secondary">
+<span>Sewa Lapangan (2 Jam)</span>
+<span class="text-on-surface font-semibold">Rp 360.000</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-md text-secondary" id="row-rompi">
+<span>Biaya Tambahan Rompi</span>
+<span class="text-on-surface font-semibold">Rp 30.000</span>
+</div>
+<div class="hidden justify-between items-center text-body-sm font-body-md text-secondary" id="row-wasit">
+<span>Jasa Wasit Pertandingan</span>
+<span class="text-on-surface font-semibold">Rp 100.000</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-md text-secondary">
+<span>Biaya Layanan Aplikasi</span>
+<span class="text-on-surface font-semibold">Rp 2.000</span>
+</div>
+<div class="h-[1px] bg-surface-container-high my-1"></div>
+<!-- Total -->
+<div class="flex justify-between items-baseline">
+<div class="flex flex-col">
+<span class="font-label-xs text-label-xs text-secondary font-bold uppercase tracking-wider">Total Tagihan</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-extrabold tracking-tight" id="grand-total">Rp 392.000</span>
+</div>
+<span class="bg-primary/10 text-primary font-label-xs text-label-xs px-space-sm py-1 rounded-full font-bold">
+          Termasuk PPN
+        </span>
+</div>
+</div>
+<!-- CTAs -->
+<div class="flex flex-col gap-space-xs">
+<button class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary font-label-lg text-label-lg rounded-lg font-bold flex items-center justify-center gap-space-sm shadow-md active:scale-[0.98] transition-all" id="btn-pay">
+<span>Lanjut Bayar</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<button class="w-full py-2 flex items-center justify-center gap-1 text-secondary hover:text-on-surface font-label-sm text-label-sm font-semibold transition-colors" onclick="history.back()">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+<span>Kembali ke Jadwal</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    // Accordion Logic
+    function setupAccordion(btnId, contentId, iconId) {
+      var btn = document.getElementById(btnId);
+      var content = document.getElementById(contentId);
+      var icon = document.getElementById(iconId);
+      if (!btn || !content || !icon) return;
+
+      btn.addEventListener('click', function() {
+        var isHidden = content.classList.contains('hidden');
+        if (isHidden) {
+          content.classList.remove('hidden');
+          icon.classList.add('rotate-180');
+        } else {
+          content.classList.add('hidden');
+          icon.classList.remove('rotate-180');
+        }
+      });
+    }
+
+    setupAccordion('acc-btn-1', 'acc-content-1', 'acc-icon-1');
+    setupAccordion('acc-btn-2', 'acc-content-2', 'acc-icon-2');
+    setupAccordion('acc-btn-3', 'acc-content-3', 'acc-icon-3');
+
+    // Dynamic Price Calculation
+    var BASE_PITCH = 360000;
+    var SERVICE_FEE = 2000;
+    var checkRompi = document.getElementById('check-rompi');
+    var checkWasit = document.getElementById('check-wasit');
+    var checkBola = document.getElementById('check-bola');
+    var rowRompi = document.getElementById('row-rompi');
+    var rowWasit = document.getElementById('row-wasit');
+    var grandTotalEl = document.getElementById('grand-total');
+    var addonBadge = document.getElementById('addon-badge');
+
+    function calculateTotal() {
+      var total = BASE_PITCH + SERVICE_FEE;
+      var selectedCount = 0;
+
+      if (checkRompi && checkRompi.checked) {
+        total += 30000;
+        selectedCount++;
+        rowRompi.classList.remove('hidden');
+        rowRompi.classList.add('flex');
+      } else if (rowRompi) {
+        rowRompi.classList.add('hidden');
+        rowRompi.classList.remove('flex');
+      }
+
+      if (checkWasit && checkWasit.checked) {
+        total += 100000;
+        selectedCount++;
+        rowWasit.classList.remove('hidden');
+        rowWasit.classList.add('flex');
+      } else if (rowWasit) {
+        rowWasit.classList.add('hidden');
+        rowWasit.classList.remove('flex');
+      }
+
+      if (checkBola && checkBola.checked) {
+        selectedCount++;
+      }
+
+      if (addonBadge) {
+        addonBadge.textContent = selectedCount + ' Dipilih';
+      }
+
+      if (grandTotalEl) {
+        grandTotalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
+      }
+    }
+
+    if (checkRompi) checkRompi.addEventListener('change', calculateTotal);
+    if (checkWasit) checkWasit.addEventListener('change', calculateTotal);
+    if (checkBola) checkBola.addEventListener('change', calculateTotal);
+
+    // Pay action button micro-interaction
+    var btnPay = document.getElementById('btn-pay');
+    if (btnPay) {
+      btnPay.addEventListener('click', function() {
+        btnPay.innerHTML = '<span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span><span>Memproses...</span>';
+        setTimeout(function() {
+          btnPay.innerHTML = '<span>Terkonfirmasi! Mengalihkan...</span><span class="material-symbols-outlined text-[18px]">done_all</span>';
+        }, 800);
+      });
+    }
+  })();
+</script></main></body></html>

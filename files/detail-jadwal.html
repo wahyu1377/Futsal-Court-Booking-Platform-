@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail &amp; Jadwal - Arena Sport</title>
+</head>
+<body>
+<header>
+  <a href="beranda.html"><img src="./assets/images/logo.png" alt="Arena Sport" width="120"></a>
+</header>
+
+<nav>
+  <a href="hasil-pencarian.html">Kembali</a>
+  <button type="button">Simpan</button>
+</nav>
+
+<ol>
+  <li>Rincian (selesai)</li>
+  <li><strong>Jadwal (langkah saat ini)</strong></li>
+  <li>Bayar</li>
+</ol>
+
+<main>
+  <img src="./assets/images/lapangan-futsal-01.webp" alt="Champion Futsal Arena" width="400">
+  <p>Futsal | Indoor Vinyl FIFA | Grade turnamen</p>
+  <p>
+    <button type="button">Bagikan</button>
+    <button type="button">Favorit</button>
+  </p>
+
+  <h1>Champion Futsal Arena</h1>
+  <p>Court A</p>
+  <p>Rating 4.8 (124 ulasan pemain terverifikasi), venue terverifikasi</p>
+  <p>Jl. TB Simatupang No. 18, Cilandak Barat, Jakarta Selatan</p>
+
+  <details>
+    <summary>Spesifikasi &amp; Fasilitas Lapangan</summary>
+    <h2>Spesifikasi Lapangan</h2>
+    <ul>
+      <li>Lantai Lapangan: 6mm Vinyl Standar Turnamen</li>
+      <li>Penerangan: 800 Lux Anti-Glare LED</li>
+    </ul>
+    <p>Peringatan: wajib menggunakan <strong>sepatu futsal rubber sole / sol karet datar</strong> (tanpa pul bola).</p>
+
+    <h2>Fasilitas Penunjang</h2>
+    <ul>
+      <li>Locker Room Pribadi</li>
+      <li>Hot &amp; Cold Shower</li>
+      <li>Kantin &amp; Minuman Dingin</li>
+      <li>Mushola Ber-AC</li>
+    </ul>
+  </details>
+
+  <form action="checkout.html" method="get">
+    <fieldset>
+      <legend>Pilih Tanggal Main (Oktober 2026)</legend>
+      <label><input type="radio" name="tanggal" value="2026-10-21"> Rab 21</label>
+      <label><input type="radio" name="tanggal" value="2026-10-22" checked> Kam 22</label>
+      <label><input type="radio" name="tanggal" value="2026-10-23"> Jum 23</label>
+      <label><input type="radio" name="tanggal" value="2026-10-24"> Sab 24</label>
+      <label><input type="radio" name="tanggal" value="2026-10-25"> Min 25</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Slot Jam Operasional (WIB, 60 menit per sesi)</legend>
+      <p><label><input type="checkbox" name="slot" value="16"> 16.00 - 17.00 WIB, Rp 150.000 / jam (tersedia)</label></p>
+      <p><label><input type="checkbox" name="slot" value="17"> 17.00 - 18.00 WIB, Rp 150.000 / jam (tersedia)</label></p>
+      <p><label><input type="checkbox" name="slot" value="18" disabled> 18.00 - 19.00 WIB, Rp 180.000 / jam (sudah dipesan)</label></p>
+      <p><label><input type="checkbox" name="slot" value="19" checked> 19.00 - 20.00 WIB, Rp 180.000 / jam, prime time (terpilih)</label></p>
+      <p><label><input type="checkbox" name="slot" value="20" checked> 20.00 - 21.00 WIB, Rp 180.000 / jam, prime time (terpilih)</label></p>
+      <p><label><input type="checkbox" name="slot" value="21"> 21.00 - 22.00 WIB, Rp 180.000 / jam (tersedia)</label></p>
+    </fieldset>
+
+    <section>
+      <h2>Ringkasan Pesanan</h2>
+      <p>Durasi sewa: 2 jam (19.00 - 21.00 WIB)</p>
+      <p>Total tagihan: <strong>Rp 360.000</strong></p>
+      <button type="submit">Lanjut Pemesanan</button>
+    </section>
+  </form>
+  <!-- Catatan: isi tanggal dan slot akan diubah via JavaScript/backend nanti. -->
+</main>
+</body>
+</html>
