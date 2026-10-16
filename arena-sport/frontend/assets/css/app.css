@@ -1,0 +1,114 @@
+:root{--green:#006a4a;--green-dark:#005239;--mint:#8cf7c4;--ink:#0d1b2e;--muted:#5f6b7a;
+  --field:#eef2ff;--bg:#f6f8ff;--line:#e3e8f5}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:84px}
+@media (min-width:992px){body{padding-bottom:0}}
+
+/* Bar atas */
+.topbar{background:rgba(246,248,255,.92);backdrop-filter:blur(8px);padding:.7rem 0;position:sticky;top:0;z-index:20}
+.topbar-logo{height:34px;width:auto}
+.brand-small{color:var(--green);font-weight:800;letter-spacing:.04em;font-size:.7rem}
+.icon-btn{border:0;background:none;font-size:1.35rem;color:var(--ink);padding:.25rem}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;display:flex;
+  align-items:center;justify-content:center;text-decoration:none}
+.btn-main-sm{background:var(--green);color:#fff;font-weight:700;border-radius:12px;padding:.45rem 1rem}
+.btn-main-sm:hover{background:var(--green-dark);color:#fff}
+.top-link{text-decoration:none;color:var(--muted);font-weight:600;padding:.3rem 0;border-bottom:2px solid transparent}
+.top-link:hover,.top-link.active{color:var(--green);border-color:var(--green)}
+
+/* Navigasi bawah */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;display:flex;justify-content:space-around;
+  padding:.55rem .5rem calc(.55rem + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(13,27,46,.07)}
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:.1rem;text-decoration:none;color:var(--muted);
+  font-size:.72rem;font-weight:700;flex:1}
+.bottom-nav a i{font-size:1.45rem}
+.bottom-nav a.active{color:var(--green)}
+
+/* Lokasi, cari, filter */
+.loc-pill{display:inline-flex;align-items:center;gap:.4rem;background:#e3ebff;border-radius:999px;padding:.45rem .9rem;font-weight:700;border:0}
+.loc-pill i:first-child{color:var(--green)}
+.tag-fast{color:var(--green);font-weight:800;font-size:.78rem;background:#e8f7f0;border-radius:999px;padding:.4rem .8rem}
+.search-box{position:relative;flex:1}
+.search-box i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search-box input{width:100%;border:0;border-radius:16px;background:#fff;padding:.9rem 1rem .9rem 2.8rem;
+  box-shadow:0 2px 8px rgba(13,27,46,.05)}
+.search-box input:focus{outline:2px solid var(--green)}
+.filter-btn{border:0;background:#e3ebff;border-radius:16px;width:52px;font-size:1.3rem;color:var(--ink)}
+
+/* Chip kategori */
+.chips{display:flex;gap:.6rem;overflow-x:auto;padding:.2rem 0 .4rem;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:#fff;border-radius:999px;padding:.55rem 1rem;font-weight:700;color:var(--ink);
+  display:flex;align-items:center;gap:.5rem}
+.chip .n{background:#e3ebff;border-radius:999px;font-size:.75rem;padding:.05rem .5rem}
+.chip.active{background:var(--green);color:#fff}
+.chip.active .n{background:rgba(255,255,255,.2);color:#fff}
+
+/* Banner promo */
+.promo{border-radius:20px;padding:1.4rem;color:#fff;background:linear-gradient(135deg,#0a2a2a 0%,#0b3d33 55%,#0f2330 100%);
+  box-shadow:0 10px 24px rgba(13,27,46,.18)}
+.promo .lbl{display:inline-flex;gap:.4rem;align-items:center;background:rgba(255,255,255,.1);color:var(--mint);
+  border-radius:999px;padding:.25rem .7rem;font-size:.78rem;font-weight:800}
+.promo h2{font-weight:800;font-size:clamp(1.4rem,4vw,1.9rem);margin:.7rem 0 .3rem}
+.promo p{color:#d3e4df;margin-bottom:1rem}
+.btn-mint{background:var(--mint);color:#06281c;font-weight:800;border:0;border-radius:12px;padding:.65rem 1.1rem}
+.btn-mint:hover{background:#74e6b0;color:#06281c}
+
+/* Kartu lapangan */
+.section-head h2{font-weight:800;font-size:1.25rem;margin:0}
+.link-green{color:var(--green);font-weight:700;text-decoration:none}
+.court-card{background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 6px 18px rgba(13,27,46,.07);height:100%;
+  display:flex;flex-direction:column}
+.court-img{position:relative;aspect-ratio:16/10;background:linear-gradient(135deg,#bfe9d6,#cfe0ff)}
+.court-img img{width:100%;height:100%;object-fit:cover;display:block}
+.court-tags{position:absolute;top:.8rem;left:.8rem;right:.8rem;display:flex;gap:.4rem;flex-wrap:wrap}
+.court-tags span{background:rgba(255,255,255,.92);border-radius:999px;padding:.2rem .7rem;font-size:.78rem;font-weight:700}
+.court-rating{position:absolute;left:.8rem;bottom:.8rem;background:rgba(255,255,255,.95);border-radius:12px;
+  padding:.2rem .6rem;font-weight:800}
+.court-rating i{color:#f5a623}
+.court-rating small{color:var(--muted);font-weight:500}
+.court-body{padding:1.1rem 1.2rem 1.2rem;display:flex;flex-direction:column;flex:1}
+.court-body h3{font-weight:800;font-size:1.2rem;line-height:1.25;margin-bottom:.3rem}
+.court-loc{color:var(--muted);font-size:.92rem}
+.avail{display:inline-flex;align-items:center;gap:.4rem;background:#e8f7f0;color:var(--green);font-weight:700;
+  font-size:.82rem;border-radius:999px;padding:.25rem .75rem}
+.avail::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green)}
+.avail.off{background:#f1f1f4;color:var(--muted)}
+.avail.off::before{background:#9aa1ad}
+.price-label{color:var(--muted);font-size:.75rem;font-weight:700;letter-spacing:.05em}
+.price{color:var(--green);font-weight:800;font-size:1.45rem}
+.price small{color:var(--muted);font-weight:500;font-size:.85rem}
+.btn-main{background:var(--green);color:#fff;font-weight:700;border:0;border-radius:14px;padding:.8rem 1.2rem;white-space:nowrap}
+.btn-main:hover{background:var(--green-dark);color:#fff}
+.empty{text-align:center;color:var(--muted);padding:3rem 1rem}
+.skeleton{background:linear-gradient(90deg,#eaeefb 25%,#f6f8ff 50%,#eaeefb 75%);background-size:200% 100%;
+  animation:sk 1.2s infinite;border-radius:22px;height:340px}
+@keyframes sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
+
+/* Tombol filter + angka jumlah filter aktif */
+.filter-btn{position:relative}
+.filter-dot{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 5px;border-radius:999px;
+  background:var(--green);color:#fff;font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--bg)}
+
+/* Panel filter */
+.filter-panel{--bs-offcanvas-width:min(420px,100vw);background:var(--bg)}
+.filter-panel .offcanvas-body{padding:1rem 1.25rem}
+.f-label{display:block;font-weight:800;margin-bottom:.55rem}
+.f-field{background:var(--field);border:2px solid transparent;border-radius:12px;padding:.7rem .9rem;box-shadow:none}
+.f-field:focus{background:#fff;border-color:var(--green);box-shadow:0 0 0 .2rem rgba(0,106,74,.15)}
+.f-err{color:#b3141b;font-weight:600;font-size:.85rem;margin-top:.4rem}
+.f-err:empty{display:none}
+
+/* Pilihan berbentuk pill (rating & fasilitas) */
+.opt{border-radius:999px;background:#fff;border:2px solid transparent;padding:.45rem .95rem;font-weight:700;
+  font-size:.9rem;cursor:pointer;transition:background .15s,border-color .15s}
+.opt:hover{background:#eef2ff}
+.btn-check:checked + .opt{background:#e6f6ee;border-color:var(--green);color:var(--green)}
+.btn-check:focus-visible + .opt{box-shadow:0 0 0 .2rem rgba(0,106,74,.25)}
+.form-check-input:checked{background-color:var(--green);border-color:var(--green)}
+.form-check-input:focus{box-shadow:0 0 0 .2rem rgba(0,106,74,.2);border-color:var(--green)}
+
+.filter-foot{padding:1rem 1.25rem calc(1rem + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid var(--line)}
+.btn-reset{background:var(--field);color:var(--ink);font-weight:700;border:0;border-radius:14px;padding:.8rem 1.2rem}
+.btn-reset:hover{background:#e2e8ff}
