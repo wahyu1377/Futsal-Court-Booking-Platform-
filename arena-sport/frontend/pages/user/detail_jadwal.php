@@ -1,292 +1,536 @@
 <?php
 /**
  * Halaman Detail & Jadwal - Arena Sport
+ * Arena Sport Pulse Design System
+ *
+ * Path: frontend/pages/user/detail_jadwal.php
  */
-$pageTitle = 'Detail Jadwal';
 
-// DATA SLOT JAM
-$slots = [
-    ['jam'=>'16.00 - 17.00 WIB','harga'=>150000,'label'=>null,'status'=>'available'],
-    ['jam'=>'17.00 - 18.00 WIB','harga'=>150000,'label'=>null,'status'=>'available'],
-    ['jam'=>'18.00 - 19.00 WIB','harga'=>180000,'label'=>null,'status'=>'booked'],
-    ['jam'=>'19.00 - 20.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'selected'],
-    ['jam'=>'20.00 - 21.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'selected'],
-    ['jam'=>'21.00 - 22.00 WIB','harga'=>180000,'label'=>null,'status'=>'available'],
-];
+// Konfigurasi halaman
+$pageTitle = 'Detail & Jadwal';
 
-// DATA TANGGAL
-$tanggal = [
-    ['val'=>'2026-10-21','hari'=>'Sen','tgl'=>'21'],
-    ['val'=>'2026-10-22','hari'=>'Sel','tgl'=>'22','aktif'=>true],
-    ['val'=>'2026-10-23','hari'=>'Rab','tgl'=>'23'],
-    ['val'=>'2026-10-24','hari'=>'Kam','tgl'=>'24'],
-    ['val'=>'2026-10-25','hari'=>'Jum','tgl'=>'25'],
-];
+// ============================================================
+// AMBIL DATA DARI DATABASE
+// ============================================================
+require_once dirname(__DIR__, 3) . '/backend/config/database.php';
 
-// DATA FASILITAS
-$fas = [
-    ['icon'=>'layers','label'=>'Lantai','ket'=>'6mm Vinyl Standar'],
-    ['icon'=>'lightbulb','label'=>'Penerangan','ket'=>'800 Lux LED'],
-    ['icon'=>'ac_unit','label'=>'AC','ket'=>'Central'],
-    ['icon'=>'wifi','label'=>'WiFi','ket'=>'Free 50Mbps'],
-];
+$lapanganId = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
-$fasi = ['Locker Room','Shower Air Panas','Kantin','Mushola'];
-?>
-<?php include '../../components/header.php'; // PATH BENAR: ../../components/ karena di dalam folder pages/user/ ?>
+try {
+    $pdo = db();
 
-<!-- CONTAINER UTAMA -->
-<div class="max-w-lg mx-auto bg-slate-100 min-h-screen">
+    // Ambil data lapangan
+    $stmt = $pdo->prepare("SELECT * FROM lapangan WHERE id = ? AND aktif = 1");
+    $stmt->execute([$lapanganId]);
+    $lapangan = $stmt->fetch();
 
-<!-- HEADER -->
-<header class="sticky top-0 z-50 bg-white/95 border-b border-slate-200 shadow-sm">
-<div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+    if (!$lapangan) {
+        // Fallback jika lapangan tidak ditemukan
+        $lapangan = [
+            'id' => 1,
+            'nama' => 'Champion Futsal Arena',
+            'jenis' => 'futsal',
+            'kecamatan' => 'Cilandak Barat',
+            'kota' => 'Jakarta Selatan',
+            'harga_per_jam' => 150000,
+            'rating' => 4.8,
+            'jumlah_ulasan' => 124,
+            'fasilitas' => 'Indoor AC,WiFi,Locker',
+            'keterangan' => 'Peralatan Lengkap'
+        ];
+    }
 
-<!-- Back Button -->
-<button id="btnBack" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 active:scale-95" aria-label="Kembali">
-<span class="material-symbols-outlined text-2xl">arrow_back</span>
-</button>
+    // Format fasilitas jadi array
+    $fasilitasList = $lapangan['fasilitas'] ? explode(',', $lapangan['fasilitas']) : [];
 
-<h1 class="font-bold text-slate-900 text-sm">Detail Jadwal</h1>
-
-<div class="flex gap-1">
-<button id="btnShare" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="Share">
-<span class="material-symbols-outlined text-xl">share</span>
-</button>
-<button id="btnFav" class="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100" aria-label="Favorit">
-<span class="material-symbols-outlined text-xl">favorite_border</span>
-</button>
-</div>
-</div>
-
-<!-- STEPPER -->
-<div class="max-w-lg mx-auto px-4 py-3 bg-white border-t border-slate-100">
-<div class="flex items-center justify-between relative max-w-xs mx-auto">
-<div class="absolute top-3 left-8 right-8 h-0.5 bg-slate-200 z-0"></div>
-<div class="absolute top-3 left-8 w-1/2 h-0.5 bg-primary z-0"></div>
-
-<!-- Step 1 Done -->
-<div class="relative z-10 flex flex-col items-center gap-1">
-<div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-sm">
-<span class="material-symbols-outlined text-sm">check</span>
-</div>
-<span class="text-xs text-primary font-bold">1. Rincian</span>
-</div>
-
-<!-- Step 2 Active -->
-<div class="relative z-10 flex flex-col items-center gap-1">
-<div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-sm ring-4 ring-emerald-100">
-<span class="text-xs font-bold">2</span>
-</div>
-<span class="text-xs text-slate-900 font-bold">2. Jadwal</span>
-</div>
-
-<!-- Step 3 Pending -->
-<div class="relative z-10 flex flex-col items-center gap-1">
-<div class="w-7 h-7 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center">
-<span class="text-xs font-bold">3</span>
-</div>
-<span class="text-xs text-slate-400">3. Bayar</span>
-</div>
-</div>
-</div>
-</header>
-
-<!-- MAIN CONTENT -->
-<main class="px-4 pb-36">
-
-<!-- HERO IMAGE -->
-<div class="relative mb-4 -mx-4">
-<img src="../../assets/img/lapangan-futsal-01.webp" alt="Lapangan Futsal" class="w-full h-56 object-cover">
-<div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent"></div>
-
-<!-- BADGES ATAS -->
-<div class="absolute top-3 left-4 right-4 flex justify-between">
-<div class="flex gap-2">
-<span class="bg-white/90 text-slate-700 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Futsal</span>
-<span class="bg-primary/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">Indoor Vinyl</span>
-</div>
-<span class="bg-black/60 text-white text-xs px-2 py-1 rounded-full">1/5</span>
-</div>
-</div>
-
-<!-- CARD INFO VENUE -->
-<div class="mb-5 bg-white rounded-2xl shadow-sm p-4">
-<div class="flex justify-between items-start mb-2">
-<h1 class="text-xl font-extrabold text-slate-900 leading-tight">Champion Futsal Arena</h1>
-<span class="bg-slate-100 text-primary text-xs font-bold px-2 py-0.5 rounded-full uppercase">Court A</span>
-</div>
-
-<div class="flex items-center gap-2 mb-2 flex-wrap">
-<div class="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full">
-<span class="material-symbols-filled text-amber-400 text-base">star</span>
-<span class="text-sm font-bold text-amber-800">4.8</span>
-</div>
-<span class="text-sm text-slate-500">(124 ulasan)</span>
-<span class="flex items-center text-xs text-primary font-semibold gap-0.5"><span class="material-symbols-outlined text-xs">verified</span>Terverifikasi</span>
-</div>
-
-<div class="flex gap-1.5 text-slate-500">
-<span class="material-symbols-outlined text-primary text-base">location_on</span>
-<span class="text-sm">Jl. TB Simatupang No.18, Jakarta Selatan</span>
-</div>
-</div>
-
-<!-- ACCORDION SPESIFIKASI -->
-<div class="accordion mb-5" id="accSpec">
-<div class="border border-slate-200 rounded-2xl bg-white shadow-sm overflow-hidden">
-
-<h2 class="accordion-header">
-<button class="accordion-button collapsed w-full flex items-center gap-2 px-4 py-3 text-sm font-semibold text-slate-900 bg-white hover:bg-slate-50" type="button" data-bs-toggle="collapse" data-bs-target="#specContent" aria-expanded="false">
-<span class="material-symbols-outlined text-primary">info</span>
-Spesifikasi & Fasilitas
-</button>
-</h2>
-
-<div id="specContent" class="accordion-collapse collapse" data-bs-parent="#accSpec">
-<div class="accordion-body p-4 text-sm text-slate-600 space-y-4">
-
-<div>
-<p class="font-semibold text-slate-900 mb-2">Spesifikasi</p>
-<div class="grid grid-cols-2 gap-2 mb-3">
-<?php foreach($fas as $f): ?>
-<div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
-<span class="material-symbols-outlined text-primary"><?=$f['icon']?></span>
-<div class="text-xs"><span class="text-slate-500"><?=$f['label']?></span><br><span class="text-slate-900 font-medium"><?=$f['ket']?></span></div>
-</div>
-<?php endforeach; ?>
-</div>
-
-<div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex gap-2">
-<span class="material-symbols-outlined text-amber-600 mt-0.5">warning</span>
-Wajib sepatu futsal sol karet datar
-</div>
-</div>
-
-<div>
-<p class="font-semibold text-slate-900 mb-2">Fasilitas</p>
-<div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-<?php foreach($fasi as $f): ?>
-<div class="flex items-center gap-1.5"><span class="material-symbols-outlined text-primary">check_circle</span><?=$f?></div>
-<?php endforeach; ?>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<!-- FORM BOOKING -->
-<form action="checkout.php" method="get" id="bookingForm">
-
-<!-- PILIH TANGGAL -->
-<div class="mb-5">
-<p class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
-<span class="material-symbols-outlined text-primary">calendar_month</span>Pilih Tanggal
-</p>
-<div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-<?php foreach($tanggal as $t):
-$aktif = !empty($t['aktif']);
-?>
-<label class="shrink-0 cursor-pointer">
-<input type="radio" name="tanggal" value="<?=$t['val']?>" <?=$aktif?'checked':''?> class="hidden peer">
-<div class="flex flex-col items-center min-w-[56px] py-2.5 px-2 rounded-xl border transition-all
-peer-checked:bg-primary peer-checked:border-primary peer-checked:text-white
-border-slate-200 text-slate-600 hover:border-primary">
-<span class="text-[10px] font-semibold uppercase"><?=$t['hari']?></span>
-<span class="text-base font-bold"><?=$t['tgl']?></span>
-</div>
-</label>
-<?php endforeach; ?>
-</div>
-</div>
-
-<!-- PILIH SLOT JAM -->
-<div class="mb-5">
-<p class="text-sm font-semibold text-slate-900 mb-1 flex items-center gap-2">
-<span class="material-symbols-outlined text-primary">schedule</span>Pilih Slot Jam
-</p>
-<p class="text-xs text-slate-500 mb-3">Pilih beberapa slot sekaligus untuk durasi lebih lama</p>
-
-<div class="flex gap-4 text-xs text-slate-500 mb-3">
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-white border border-slate-200 shadow-sm"></span>Tersedia</span>
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-primary"></span>Terpilih</span>
-<span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span>Penuh</span>
-</div>
-
-<div class="space-y-2" id="slotList">
-<?php foreach($slots as $s):
-$booked = $s['status'] === 'booked';
-$sel = $s['status'] === 'selected';
-$harga = 'Rp '.number_format($s['harga'],0,',','.');
-?>
-<label class="block <?=$booked?'opacity-50 cursor-not-allowed':'cursor-pointer' ?>">
-<input type="checkbox" name="slot[]" value="<?=htmlspecialchars($s['jam'])?>" <?=$booked?'disabled':''?> <?=$sel?'checked':''?> class="hidden peer cb-slot" data-harga="<?=$s['harga']?>">
-<div class="flex items-center justify-between px-4 py-3.5 rounded-xl border transition-all
-<?=$booked?'bg-slate-100 border-slate-200':($sel?'bg-emerald-50 border-primary shadow-md':'bg-white border-slate-200 hover:border-primary')?>">
-<div>
-<p class="text-sm font-semibold <?=$booked?'line-through text-slate-400':($sel?'text-primary font-extrabold':'text-slate-900')?>">
-<?=$s['jam']?>
-<?php if($s['label']): ?><span class="ml-1 text-[10px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded-full"><?=$s['label']?></span><?php endif; ?>
-</p>
-<p class="text-xs <?=$booked?'text-slate-400':($sel?'text-primary font-semibold':'text-slate-500')?>">
-<?=$booked?'Penuh':$harga.'/jam' ?>
-</p>
-</div>
-<?php if($booked): ?>
-<span class="text-xs text-slate-400 bg-slate-200 px-2 py-1 rounded-full font-semibold">Penuh</span>
-<?php elseif($sel): ?>
-<span class="material-symbols-filled text-primary text-xl">check_circle</span>
-<?php else: ?>
-<span class="material-symbols-outlined text-slate-300 text-xl">circle</span>
-<?php endif; ?>
-</div>
-</label>
-<?php endforeach; ?>
-</div>
-</div>
-
-</form>
-</main>
-
-<!-- FLOATING BAR -->
-<div class="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-lg">
-<div class="max-w-lg mx-auto px-4 py-4 flex items-center justify-between gap-4">
-<div>
-<p class="text-xs text-slate-500" id="durasiLabel">Durasi: <span id="durasiNum">2 jam</span></p>
-<p class="text-xl font-bold text-slate-900" id="totalHarga">Rp 360.000</p>
-</div>
-<button type="submit" form="bookingForm" id="btnLanjut"
-class="bg-primary hover:bg-emerald-700 disabled:bg-slate-200 disabled:cursor-not-allowed
-text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all shadow-md active:scale-95 flex items-center gap-2">
-Lanjut
-<span class="material-symbols-outlined text-lg">arrow_forward</span>
-</button>
-</div>
-</div>
-
-</div>
-
-<!-- JAVASCRIPT -->
-<script>
-(function(){
-var btn=document.getElementById('btnBack');
-if(btn) btn.addEventListener('click',function(){ history.back(); });
-
-var cbs=document.querySelectorAll('.cb-slot');
-var total=document.getElementById('totalHarga');
-var durasi=document.getElementById('durasiNum');
-
-function hitung(){
-var sum=0, count=0;
-cbs.forEach(function(c){ if(c.checked){ sum+=parseInt(c.dataset.harga); count++; } });
-if(total) total.textContent='Rp '+sum.toLocaleString('id-ID');
-if(durasi) durasi.textContent=count>0?count+' jam':'0 jam (pilih slot';
+} catch (Exception $e) {
+    // Fallback jika database error
+    $lapangan = [
+        'id' => 1,
+        'nama' => 'Champion Futsal Arena',
+        'jenis' => 'futsal',
+        'kecamatan' => 'Cilandak Barat',
+        'kota' => 'Jakarta Selatan',
+        'harga_per_jam' => 150000,
+        'rating' => 4.8,
+        'jumlah_ulasan' => 124,
+        'fasilitas' => 'Indoor AC,WiFi,Locker',
+        'keterangan' => 'Peralatan Lengkap'
+    ];
+    $fasilitasList = ['Indoor AC', 'WiFi', 'Locker'];
 }
-cbs.forEach(function(c){ c.addEventListener('change',hitung); });
-hitung();
-})();
-</script>
 
-<?php include '../../components/footer.php'; ?>
+// ============================================================
+// DATA SLOT JAM (8 jam operasional)
+// ============================================================
+$slots = [
+    ['jam'=>'08.00 - 09.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
+    ['jam'=>'09.00 - 10.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
+    ['jam'=>'10.00 - 11.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
+    ['jam'=>'11.00 - 12.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'booked'],
+    ['jam'=>'12.00 - 13.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
+    ['jam'=>'13.00 - 14.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'booked'],
+    ['jam'=>'14.00 - 15.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
+    ['jam'=>'15.00 - 16.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'available'],
+    ['jam'=>'16.00 - 17.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'available'],
+    ['jam'=>'17.00 - 18.00 WIB','harga'=>180000,'status'=>'booked'],
+    ['jam'=>'18.00 - 19.00 WIB','harga'=>180000,'status'=>'available'],
+    ['jam'=>'19.00 - 20.00 WIB','harga'=>180000,'status'=>'available'],
+    ['jam'=>'20.00 - 21.00 WIB','harga'=>180000,'status'=>'available'],
+    ['jam'=>'21.00 - 22.00 WIB','harga'=>180000,'status'=>'available'],
+];
+
+// ============================================================
+// DATA TANGGAL (7 hari ke depan)
+// ============================================================
+$tanggalList = [];
+for ($i = 0; $i < 7; $i++) {
+    $date = date('Y-m-d', strtotime("+$i days"));
+    $hari = date('D', strtotime("+$i days"));
+    $hariIndonesia = ['Sun'=>'Min','Mon'=>'Sen','Tue'=>'Sel','Wed'=>'Rab','Thu'=>'Kam','Fri'=>'Jum','Sat'=>'Sab'];
+    $tanggalList[] = [
+        'val' => $date,
+        'hari' => $hariIndonesia[$hari],
+        'tgl' => date('d', strtotime("+$i days")),
+        'aktif' => ($i === 2) // Tanggal ke-3 aktif default
+    ];
+}
+
+// ============================================================
+// FUNGSI HELPER
+// ============================================================
+function formatRupiah($angka) {
+    return 'Rp ' . number_format($angka, 0, ',', '.');
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title><?= htmlspecialchars($pageTitle) ?> - Arena Sport</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#006948',
+            'primary-dark': '#005840',
+            'primary-container': '#00855d',
+            'on-primary': '#ffffff',
+            'on-primary-container': '#f5fff7',
+            'primary-fixed': '#85f8c4',
+            'surface': '#f8f9ff',
+            'surface-lowest': '#ffffff',
+            'surface-container-low': '#eff4ff',
+            'surface-container': '#e5eeff',
+            'surface-container-high': '#dce9ff',
+            'on-surface': '#0b1c30',
+            'on-surface-variant': '#3d4a42',
+            'secondary': '#565e74',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    };
+    </script>
+
+    <style>
+        html, body {
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            overscroll-behavior: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { display: none; }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-dot {
+            animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-surface font-sans text-sm text-on-surface flex flex-col min-h-screen">
+
+    <!-- ============================================================
+         HEADER - Fixed Top Navigation
+         ============================================================ -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-sm">
+        <div class="h-16 px-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button id="btnBack" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors">
+                    <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                </button>
+                <img alt="Logo" class="h-7 w-auto object-contain" src="../../assets/img/logo.png">
+                <h1 class="font-bold text-on-surface"><?= htmlspecialchars($pageTitle) ?></h1>
+            </div>
+            <div class="flex items-center gap-1">
+                <button class="w-10 h-10 flex items-center justify-center rounded-full">
+                    <img src="../../assets/img/Foto profil.png" alt="Profil" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.style.display='none'">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+    <main class="flex flex-col relative w-full pt-16 pb-32 bg-surface min-h-screen">
+        <div class="flex flex-col w-full">
+
+            <!-- STEPPER -->
+            <div class="px-4 py-3 bg-surface-lowest shadow-sm">
+                <div class="flex items-center justify-between relative max-w-sm mx-auto">
+                    <div class="absolute top-3 left-6 right-6 h-[2px] bg-surface-container-high z-0"></div>
+                    <div class="absolute top-3 left-6 w-1/2 h-[2px] bg-primary z-0"></div>
+
+                    <div class="relative z-10 flex flex-col items-center gap-1">
+                        <div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+                            <span class="material-symbols-outlined text-sm">check</span>
+                        </div>
+                        <span class="text-[10px] text-primary font-bold uppercase tracking-wider">1. Rincian</span>
+                    </div>
+
+                    <div class="relative z-10 flex flex-col items-center gap-1">
+                        <div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm ring-4 ring-primary-fixed/40">
+                            <span class="text-xs font-bold">2</span>
+                        </div>
+                        <span class="text-[10px] text-on-surface font-extrabold uppercase tracking-wider">2. Jadwal</span>
+                    </div>
+
+                    <div class="relative z-10 flex flex-col items-center gap-1">
+                        <div class="w-7 h-7 rounded-full bg-surface-container text-secondary flex items-center justify-center">
+                            <span class="text-xs font-bold">3</span>
+                        </div>
+                        <span class="text-[10px] text-secondary uppercase tracking-wider">3. Bayar</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HERO IMAGE -->
+            <div class="relative w-full aspect-video bg-surface-container-high overflow-hidden">
+                <?php
+                $gambarList = ['lapangan1.jpeg', 'lapangan2.jpeg', 'lapangan3.jpeg'];
+                $gambarRandom = $gambarList[array_rand($gambarList)];
+                ?>
+                <img src="../../assets/img/<?= $gambarRandom ?>" alt="<?= htmlspecialchars($lapangan['nama']) ?>" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <div class="absolute top-3 left-3 right-3 flex items-center justify-between">
+                    <div class="flex gap-1.5">
+                        <span class="bg-white/90 backdrop-blur-sm text-slate-700 text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider font-semibold">
+                            <?= ucfirst($lapangan['jenis']) ?>
+                        </span>
+                        <span class="bg-primary/90 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-full font-bold">
+                            Indoor
+                        </span>
+                    </div>
+                </div>
+                <div class="absolute bottom-3 right-3">
+                    <span class="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                        <span class="material-symbols-outlined text-xs">photo_camera</span> 1/3
+                    </span>
+                </div>
+            </div>
+
+            <!-- VENUE INFO -->
+            <div class="px-4 py-4 bg-surface-lowest">
+                <div class="flex items-start justify-between gap-2 mb-3">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-on-surface leading-tight tracking-tight"><?= htmlspecialchars($lapangan['nama']) ?></h2>
+                        <span class="text-xs text-primary font-bold px-2.5 py-0.5 rounded-full bg-primary/10 mt-1 inline-block">Court A</span>
+                    </div>
+                    <div class="flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-full">
+                        <span class="material-symbols-outlined text-amber-500 text-base">star</span>
+                        <span class="text-sm font-bold text-amber-900"><?= number_format($lapangan['rating'], 1) ?></span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-1.5 text-secondary mb-2">
+                    <span class="material-symbols-outlined text-primary text-base shrink-0 mt-0.5">location_on</span>
+                    <p class="text-xs text-on-surface-variant leading-relaxed"><?= htmlspecialchars($lapangan['kecamatan']) ?>, <?= htmlspecialchars($lapangan['kota']) ?></p>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-secondary">
+                    <span class="inline-flex items-center text-primary font-semibold gap-0.5">
+                        <span class="material-symbols-outlined text-xs">verified</span> Terverifikasi
+                    </span>
+                    <span>(<?= $lapangan['jumlah_ulasan'] ?> ulasan pemain)</span>
+                </div>
+            </div>
+
+            <!-- ACCORDION SPESIFIKASI -->
+            <div class="mx-4 mt-2 bg-surface-lowest rounded-xl shadow-sm overflow-hidden">
+                <button class="w-full px-4 py-3 flex items-center justify-between bg-surface-container-low text-left transition-colors" id="accordion-toggle">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">info</span>
+                        <span class="text-sm font-bold text-on-surface">Spesifikasi & Fasilitas</span>
+                    </div>
+                    <span class="material-symbols-outlined text-secondary transition-transform duration-200" id="accordion-arrow">keyboard_arrow_down</span>
+                </button>
+                <div class="hidden px-4 pb-4 bg-surface-lowest" id="accordion-content">
+                    <!-- Spesifikasi -->
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">layers</span>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-secondary">Lantai</span>
+                                <span class="text-xs text-on-surface font-semibold">6mm Vinyl</span>
+                            </div>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-surface-container-low flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">lightbulb</span>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-secondary">Penerangan</span>
+                                <span class="text-xs text-on-surface font-semibold">800 Lux LED</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Warning -->
+                    <div class="flex items-center gap-2 p-2.5 bg-amber-50 rounded-lg text-amber-900 mb-3">
+                        <span class="material-symbols-outlined text-amber-600 shrink-0">do_not_step</span>
+                        <span class="text-xs leading-tight">Wajib menggunakan <strong>sepatu futsal rubber sole</strong></span>
+                    </div>
+                    <!-- Fasilitas -->
+                    <span class="text-[10px] text-secondary uppercase font-bold tracking-wider block mb-2">Fasilitas</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <?php foreach ($fasilitasList as $fas): ?>
+                        <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                            <span class="material-symbols-outlined text-primary text-base">check_circle</span>
+                            <span><?= htmlspecialchars(trim($fas)) ?></span>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PILIH TANGGAL -->
+            <div class="mx-4 mt-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">calendar_month</span>
+                        <h3 class="text-base font-extrabold text-on-surface">Pilih Tanggal Main</h3>
+                    </div>
+                    <span class="text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full"><?= date('F Y') ?></span>
+                </div>
+                <div class="flex items-center gap-2 overflow-x-auto py-1 hide-scrollbar">
+                    <?php foreach ($tanggalList as $t): ?>
+                    <label class="flex flex-col items-center justify-center min-w-[52px] py-3 px-2 rounded-xl cursor-pointer transition-all active:scale-95
+                        <?= !empty($t['aktif']) ? 'bg-primary text-on-primary shadow-md' : 'bg-surface-lowest shadow-sm text-on-surface hover:bg-surface-container-low' ?>">
+                        <input type="radio" name="tanggal" value="<?= $t['val'] ?>" <?= !empty($t['aktif']) ? 'checked' : '' ?> class="hidden peer">
+                        <span class="text-[10px] font-semibold uppercase tracking-wider <?= !empty($t['aktif']) ? 'text-primary-fixed' : 'text-secondary' ?>"><?= $t['hari'] ?></span>
+                        <span class="text-base font-bold leading-none mt-1"><?= $t['tgl'] ?></span>
+                        <?php if (!empty($t['aktif'])): ?>
+                        <span class="w-1.5 h-1.5 bg-primary-fixed rounded-full mt-1"></span>
+                        <?php endif; ?>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- SLOT JADWAL -->
+            <div class="mx-4 mt-4 flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">schedule</span>
+                        <h3 class="text-base font-extrabold text-on-surface">Slot Jadwal</h3>
+                    </div>
+                    <span class="text-[10px] text-secondary">WIB</span>
+                </div>
+                <div class="flex items-center gap-4 text-[10px] text-secondary">
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-surface-lowest border border-slate-200"></span><span>Tersedia</span></div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-primary"></span><span>Terpilih</span></div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-200"></span><span>Penuh</span></div>
+                </div>
+
+                <form action="checkout.php" method="get" id="bookingForm">
+                <input type="hidden" name="id" value="<?= $lapangan['id'] ?>">
+                <div class="grid grid-cols-3 gap-2" id="slotList">
+                    <?php foreach ($slots as $index => $s):
+                        $booked = $s['status'] === 'booked';
+                        $harga = formatRupiah($s['harga']);
+                    ?>
+                    <label class="slot-card rounded-xl p-3 text-center transition-all cursor-pointer
+                        <?php if($booked): ?>bg-slate-100 cursor-not-allowed opacity-60
+                        <?php else: ?>bg-surface-lowest shadow-sm hover:shadow-md border border-transparent<?php endif; ?>"
+                        <?php if($booked): ?>style="pointer-events: none;"<?php endif; ?>>
+
+                        <input type="checkbox" name="slot[]" value="<?= htmlspecialchars($s['jam']) ?>"
+                            <?= $booked ? 'disabled' : '' ?>
+                            class="hidden peer cb-slot"
+                            data-nominal="<?= $s['harga'] ?>"
+                            data-index="<?= $index ?>">
+
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="material-symbols-outlined text-lg <?= $booked ? 'text-slate-400' : 'text-primary' ?>">
+                                <?php if($booked): ?>lock<?php else: ?>schedule<?php endif; ?>
+                            </span>
+                            <span class="text-xs font-bold <?= $booked ? 'text-slate-400 line-through' : 'text-on-surface' ?>">
+                                <?= $s['jam'] ?>
+                            </span>
+                            <span class="text-[10px] <?= $booked ? 'text-slate-400' : 'text-secondary' ?>">
+                                <?= $harga ?>
+                            </span>
+                            <?php if(!empty($s['label'])): ?>
+                            <span class="text-[9px] bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded-full mt-0.5"><?= $s['label'] ?></span>
+                            <?php endif; ?>
+                        </div>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- FLOATING BAR -->
+    <div class="fixed bottom-0 left-0 right-0 z-40 bg-surface-lowest shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        <div class="max-w-lg mx-auto px-4 pt-3 pb-4 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-secondary uppercase font-semibold tracking-wider">Durasi Sewa</span>
+                    <span class="text-sm text-on-surface font-bold flex items-center gap-1">
+                        <span class="material-symbols-outlined text-primary text-sm">timelapse</span>
+                        <span id="durasiNum">0 Jam</span>
+                    </span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] text-secondary uppercase font-semibold tracking-wider">Total</span>
+                    <span class="text-lg text-primary font-extrabold leading-none" id="totalHarga">Rp 0</span>
+                </div>
+            </div>
+            <button type="submit" form="bookingForm" id="btnLanjut"
+                class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all">
+                Lanjut Pemesanan
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+    (function(){
+        // Tombol Kembali
+        var btnBack = document.getElementById('btnBack');
+        if (btnBack) {
+            btnBack.addEventListener('click', function() {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'beranda.php';
+                }
+            });
+        }
+
+        // Accordion
+        var accordionToggle = document.getElementById('accordion-toggle');
+        var accordionContent = document.getElementById('accordion-content');
+        var accordionArrow = document.getElementById('accordion-arrow');
+        if (accordionToggle && accordionContent && accordionArrow) {
+            accordionToggle.addEventListener('click', function() {
+                var isHidden = accordionContent.classList.contains('hidden');
+                if (isHidden) {
+                    accordionContent.classList.remove('hidden');
+                    accordionArrow.classList.add('rotate-180');
+                } else {
+                    accordionContent.classList.add('hidden');
+                    accordionArrow.classList.remove('rotate-180');
+                }
+            });
+        }
+
+        // Slot Selection
+        var cbs = document.querySelectorAll('.cb-slot:not(:disabled)');
+        var total = document.getElementById('totalHarga');
+        var durasi = document.getElementById('durasiNum');
+
+        function hitung() {
+            var sum = 0, count = 0;
+            cbs.forEach(function(c) {
+                if (c.checked) {
+                    sum += parseInt(c.dataset.nominal);
+                    count++;
+                }
+            });
+            if (total) total.textContent = 'Rp ' + sum.toLocaleString('id-ID');
+            if (durasi) durasi.textContent = count > 0 ? count + ' Jam' : '0 Jam';
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            var allSlots = document.querySelectorAll('.slot-card');
+            allSlots.forEach(function(card) {
+                var cb = card.querySelector('.cb-slot');
+                if (cb && !cb.disabled) {
+                    var icon = card.querySelector('.material-symbols-outlined');
+                    var timeSlot = card.querySelector('.text-xs.font-bold');
+                    var priceSlot = card.querySelector('.text-\\[10px\\]');
+
+                    if (cb.checked) {
+                        card.classList.remove('bg-surface-lowest', 'shadow-sm', 'border-transparent');
+                        card.classList.add('bg-primary', 'text-on-primary', 'shadow-lg');
+                        if (icon) {
+                            icon.classList.remove('text-primary');
+                            icon.classList.add('text-on-primary');
+                            icon.textContent = 'check_circle';
+                        }
+                        if (timeSlot) {
+                            timeSlot.classList.remove('text-on-surface');
+                            timeSlot.classList.add('text-on-primary');
+                        }
+                        if (priceSlot) {
+                            priceSlot.classList.remove('text-secondary');
+                            priceSlot.classList.add('text-primary-fixed');
+                        }
+                    } else {
+                        card.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg');
+                        card.classList.add('bg-surface-lowest', 'shadow-sm');
+                        if (icon) {
+                            icon.classList.remove('text-on-primary');
+                            icon.classList.add('text-primary');
+                            icon.textContent = 'schedule';
+                        }
+                        if (timeSlot) {
+                            timeSlot.classList.remove('text-on-primary');
+                            timeSlot.classList.add('text-on-surface');
+                        }
+                        if (priceSlot) {
+                            priceSlot.classList.remove('text-primary-fixed');
+                            priceSlot.classList.add('text-secondary');
+                        }
+                    }
+                }
+            });
+        }
+
+        cbs.forEach(function(c) {
+            c.addEventListener('change', hitung);
+        });
+
+        // Initial calculation
+        hitung();
+    })();
+    </script>
+</body>
+</html>

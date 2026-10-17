@@ -1,7 +1,7 @@
 <?php
 /**
  * Halaman Checkout Booking - Arena Sport
- * Menggunakan Design System Arena Sport Pulse
+ * Arena Sport Pulse Design System
  *
  * Path: frontend/pages/user/checkout.php
  */
@@ -9,78 +9,108 @@
 // Konfigurasi halaman
 $pageTitle = 'Checkout Booking';
 
-// Data Opsi Tambahan
+// ============================================================
+// AMBIL DATA DARI DETAIL JADWAL
+// ============================================================
+$lapanganId = isset($_GET['id']) ? (int)$_GET['id'] : 1;
+$slotsTerpilih = isset($_GET['slot']) ? $_GET['slot'] : [];
+$tanggalPilih = isset($_GET['tanggal']) ? $_GET['tanggal'] : date('Y-m-d');
+
+// ============================================================
+// KONFIGURASI HARGA
+// ============================================================
+$HARGA_NORMAL = 150000;
+$HARGA_PRIME_TIME = 180000;
+$HARGA_ROMPI = 30000;
+$HARGA_WASIT = 100000;
+$BIAYA_LAYANAN = 2000;
+
+// ============================================================
+// HITUNG DURASI DAN TOTAL
+// ============================================================
+$jumlahSlot = count($slotsTerpilih);
+$totalHarga = 0;
+$jamMulai = '';
+$jamSelesai = '';
+
+foreach ($slotsTerpilih as $index => $slot) {
+    preg_match('/^(\d{2})\.(\d{2})/', $slot, $matches);
+    $jam = isset($matches[1]) ? (int)$matches[1] : 0;
+
+    // Tentukan harga berdasarkan jam
+    if ($jam >= 15 && $jam < 21) {
+        $hargaSlot = $HARGA_PRIME_TIME;
+    } else {
+        $hargaSlot = $HARGA_NORMAL;
+    }
+
+    $totalHarga += $hargaSlot;
+
+    if ($index === 0) $jamMulai = $slot;
+    if ($index === count($slotsTerpilih) - 1) $jamSelesai = $slot;
+}
+
+// Format jam display
+$jamDisplay = '';
+if ($jamMulai && $jamSelesai) {
+    $jamAwal = explode(' - ', $jamMulai)[0] . ' WIB';
+    $jamAkhir = explode(' - ', $jamSelesai)[1] ?? '';
+    $jamDisplay = $jamAwal . ' - ' . $jamAkhir . ' WIB';
+}
+
+// Format tanggal
+$hariIndonesia = ['Sun'=>'Min','Mon'=>'Sen','Tue'=>'Sel','Wed'=>'Rab','Thu'=>'Kam','Fri'=>'Jum','Sat'=>'Sab'];
+$bulanIndonesia = [1=>'Jan',2=>'Feb',3=>'Mar',4=>'Apr',5=>'Mei',6=>'Jun',7=>'Jul',8=>'Agu',9=>'Sep',10=>'Okt',11=>'Nov',12=>'Des'];
+$tanggalObj = DateTime::createFromFormat('Y-m-d', $tanggalPilih);
+$tanggalDisplay = date('d M Y');
+if ($tanggalObj) {
+    $hari = $hariIndonesia[$tanggalObj->format('D')] ?? '';
+    $tanggalDisplay = $hari . ', ' . $tanggalObj->format('j') . ' ' . $bulanIndonesia[(int)$tanggalObj->format('n')] . ' ' . $tanggalObj->format('Y');
+}
+
+// Generate Booking ID
+$bookingId = 'BKG-' . strtoupper(substr(md5(uniqid()), 0, 4));
+
+// ============================================================
+// AMBIL DATA LAPANGAN DARI DATABASE
+// ============================================================
+require_once dirname(__DIR__, 3) . '/backend/config/database.php';
+
+try {
+    $pdo = db();
+    $stmt = $pdo->prepare("SELECT * FROM lapangan WHERE id = ? AND aktif = 1");
+    $stmt->execute([$lapanganId]);
+    $lapangan = $stmt->fetch();
+
+    if (!$lapangan) {
+        $lapangan = [
+            'nama' => 'Champion Futsal Arena',
+            'jenis' => 'futsal'
+        ];
+    }
+} catch (Exception $e) {
+    $lapangan = [
+        'nama' => 'Champion Futsal Arena',
+        'jenis' => 'futsal'
+    ];
+}
+
+// ============================================================
+// OPSI TAMBAHAN
+// ============================================================
 $opsiTambahan = [
-    [
-        'id'     => 'rompi',
-        'label'  => 'Sewa Rompi Latihan',
-        'desc'   => '12 pcs Rompi Neon/Oranye berstandar',
-        'harga'  => 30000,
-        'checked' => true,
-        'icon'   => 'checkroom',
-    ],
-    [
-        'id'     => 'wasit',
-        'label'  => 'Jasa Wasit Pertandingan',
-        'desc'   => '2 Jam Berlisensi Askot Futsal',
-        'harga'  => 100000,
-        'checked' => false,
-        'icon'   => 'sports',
-    ],
-    [
-        'id'     => 'bola',
-        'label'  => 'Bola Futsal Tambahan',
-        'desc'   => '2 buah bola match standar FIFA',
-        'harga'  => 0,
-        'checked' => true,
-        'icon'   => 'sports_soccer',
-    ],
+    ['id'=>'rompi','label'=>'Sewa Rompi Latihan','desc'=>'12 pcs Rompi Neon/Oranye','harga'=>$HARGA_ROMPI,'icon'=>'checkroom'],
+    ['id'=>'wasit','label'=>'Jasa Wasit Pertandingan','desc'=>'2 Jam Berlisensi Askot','harga'=>$HARGA_WASIT,'icon'=>'sports'],
+    ['id'=>'bola','label'=>'Bola Futsal Tambahan','desc'=>'2 buah bola match FIFA','harga'=>0,'icon'=>'sports_soccer'],
 ];
 
-// Data Metode Pembayaran
+// ============================================================
+// METODE PEMBAYARAN
+// ============================================================
 $metodeBayar = [
-    [
-        'value'    => 'qris',
-        'icon'     => 'qr_code_scanner',
-        'label'    => 'QRIS / Instan',
-        'badge'    => ['text' => 'Otomatis', 'type' => 'success'],
-        'desc'     => 'BCA, Mandiri, GoPay, ShopeePay, OVO',
-        'selected' => true,
-    ],
-    [
-        'value'    => 'va',
-        'icon'     => 'account_balance',
-        'label'    => 'Virtual Account',
-        'badge'    => null,
-        'desc'     => 'BCA, Mandiri, BRI, BNI',
-        'selected' => false,
-    ],
-    [
-        'value'    => 'onsite',
-        'icon'     => 'storefront',
-        'label'    => 'Bayar di Tempat',
-        'badge'    => ['text' => 'DP 50%', 'type' => 'warning'],
-        'desc'     => 'DP via transfer, lunasi di kasir',
-        'selected' => false,
-    ],
-];
-
-// Data kontak (contoh - nanti dari database)
-$kontak = [
-    'nama' => 'Bambang Pamungkas',
-    'wa' => '0812-3456-7890',
-    'tim' => 'Garuda FC',
-];
-
-// Data booking
-$booking = [
-    'id' => 'BKG-9921',
-    'lapangan' => 'Futsal Vinyl Pro A',
-    'nama' => 'Champion Futsal Arena',
-    'tanggal' => 'Kamis, 23 Okt 2026',
-    'jam' => '15.00 - 17.00 WIB',
-    'durasi' => '2 Jam',
-    'harga_lapangan' => 360000,
+    ['value'=>'qris','icon'=>'qr_code_scanner','label'=>'QRIS / Instan','badge'=>'Otomatis','type'=>'success','desc'=>'BCA, Mandiri, GoPay, OVO'],
+    ['value'=>'va','icon'=>'account_balance','label'=>'Virtual Account','badge'=>null,'type'=>'','desc'=>'BCA, Mandiri, BRI, BNI'],
+    ['value'=>'onsite','icon'=>'storefront','label'=>'Bayar di Tempat','badge'=>'DP 50%','type'=>'warning','desc'=>'DP via transfer, lunasi di kasir'],
 ];
 ?>
 <!DOCTYPE html>
@@ -88,7 +118,7 @@ $booking = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title><?= $pageTitle ?> - Arena Sport</title>
+    <title><?= htmlspecialchars($pageTitle) ?> - Arena Sport</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -105,36 +135,23 @@ $booking = [
       theme: {
         extend: {
           colors: {
-            // Arena Sport Pulse Design System
             'primary': '#006948',
             'primary-dark': '#005840',
             'primary-container': '#00855d',
             'on-primary': '#ffffff',
             'on-primary-container': '#f5fff7',
             'primary-fixed': '#85f8c4',
-            'primary-fixed-dim': '#68dba9',
             'surface': '#f8f9ff',
             'surface-lowest': '#ffffff',
             'surface-container-low': '#eff4ff',
             'surface-container': '#e5eeff',
             'surface-container-high': '#dce9ff',
-            'surface-container-highest': '#d3e4fe',
             'on-surface': '#0b1c30',
             'on-surface-variant': '#3d4a42',
             'secondary': '#565e74',
-            'error': '#ba1a1a',
-            'background': '#f8f9ff',
           },
           fontFamily: {
             sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-          },
-          spacing: {
-            'gutter-sm': '1rem',
-            'space-xs': '0.25rem',
-            'space-sm': '0.5rem',
-            'space-md': '1rem',
-            'space-lg': '1.5rem',
-            'space-xl': '2rem',
           }
         }
       }
@@ -142,94 +159,52 @@ $booking = [
     </script>
 
     <style>
-        /* Base Styles */
         html, body {
             width: 100vw;
             margin: 0;
             padding: 0;
             overscroll-behavior: none;
         }
-
-        body {
-            min-height: max(884px, 100dvh);
-        }
-
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
-        .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
-
-        /* Material Symbols */
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             display: inline-block;
             vertical-align: middle;
         }
-
-        /* Hide scrollbar */
         ::-webkit-scrollbar { display: none; }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
-        /* Pulse animation for active step */
-        @keyframes pulse-indicator {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
-        }
-        .animate-pulse-indicator {
-            animation: pulse-indicator 2s ease-in-out infinite;
-        }
-
-        /* Spinner animation */
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-pulse-dot { animation: pulse-dot 2s infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
     </style>
 </head>
 <body class="bg-surface font-sans text-sm text-on-surface flex flex-col min-h-screen">
 
-    <!-- ============================================================
-         HEADER - Fixed Top Navigation
-         ============================================================ -->
-    <header class="fixed top-0 w-full z-50 pt-safe bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <!-- HEADER -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-sm">
         <div class="h-16 px-4 flex items-center justify-between">
-
-            <!-- Left: Back Button + Logo + Title -->
             <div class="flex items-center gap-3">
-                <button id="btnBack" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors" aria-label="Kembali">
+                <button id="btnBack" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors">
                     <span class="material-symbols-outlined text-2xl">arrow_back</span>
                 </button>
-                <img alt="Arena Sport Logo" class="h-7 w-auto object-contain" src="../../assets/img/Logo.png">
+                <img alt="Logo" class="h-7 w-auto object-contain" src="../../assets/img/logo.png">
                 <h1 class="font-bold text-on-surface">Checkout</h1>
             </div>
-
-            <!-- Right: Profile -->
             <div class="flex items-center gap-1">
-                <button id="btnBookmark" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container-high transition-colors" aria-label="Profil">
-                    <img src="../../assets/img/Foto profil.png" alt="Profil" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm">
-                </button>
+                <img src="../../assets/img/Foto profil.png" alt="Profil" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm" onerror="this.style.display='none'">
             </div>
         </div>
     </header>
 
-    <!-- ============================================================
-         MAIN CONTENT
-         ============================================================ -->
+    <!-- MAIN CONTENT -->
     <main class="flex flex-col relative w-full pt-16 pb-36 bg-surface min-h-screen">
         <div class="flex flex-col w-full px-4 pt-4 pb-6 gap-4">
 
-            <!-- Stepper Indicator -->
+            <!-- STEPPER -->
             <div class="w-full bg-surface-lowest rounded-xl p-4 shadow-sm">
                 <div class="flex items-center justify-between relative">
-                    <!-- Connector Line Background -->
                     <div class="absolute left-8 right-8 top-4 h-[2px] bg-surface-container-high z-0"></div>
                     <div class="absolute left-8 w-1/2 top-4 h-[2px] bg-primary z-0"></div>
 
-                    <!-- Step 1: Kontak (Done) -->
                     <div class="relative z-10 flex flex-col items-center gap-1">
                         <div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
                             <span class="material-symbols-outlined text-sm">check</span>
@@ -237,15 +212,13 @@ $booking = [
                         <span class="text-[10px] text-primary font-bold">1. Kontak</span>
                     </div>
 
-                    <!-- Step 2: Detail (Active) -->
                     <div class="relative z-10 flex flex-col items-center gap-1">
                         <div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
-                            <span class="material-symbols-outlined text-xs animate-pulse-indicator">fiber_manual_record</span>
+                            <span class="material-symbols-outlined text-xs animate-pulse-dot">fiber_manual_record</span>
                         </div>
                         <span class="text-[10px] text-on-surface font-bold">2. Detail</span>
                     </div>
 
-                    <!-- Step 3: Bayar (Upcoming) -->
                     <div class="relative z-10 flex flex-col items-center gap-1">
                         <div class="w-7 h-7 rounded-full bg-surface-container text-secondary flex items-center justify-center">
                             <span class="material-symbols-outlined text-xs">radio_button_unchecked</span>
@@ -255,182 +228,149 @@ $booking = [
                 </div>
             </div>
 
-            <!-- ============================================================
-                 Booking Header Card
-                 ============================================================ -->
-            <div class="w-full bg-surface-lowest rounded-xl overflow-hidden shadow-sm flex flex-col">
-                <!-- Hero Image with Overlay -->
-                <div class="relative w-full h-36 bg-cover bg-center" style="background-image: url('../../assets/img/lapangan1.jpeg'); background-size: cover; background-position: center;">
+            <!-- BOOKING SUMMARY CARD -->
+            <div class="w-full bg-surface-lowest rounded-xl overflow-hidden shadow-sm">
+                <div class="relative w-full h-36 bg-cover bg-center" style="background-image: url('../../assets/img/lapangan1.jpeg');">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-
-                    <!-- Booking ID Badge -->
                     <div class="absolute top-3 right-3">
                         <span class="bg-primary/90 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider font-bold flex items-center gap-1 shadow">
-                            <span class="material-symbols-outlined text-xs">verified</span> #<?= $booking['id'] ?>
+                            <span class="material-symbols-outlined text-xs">verified</span> #<?= $bookingId ?>
                         </span>
                     </div>
-
-                    <!-- venue Info -->
                     <div class="absolute bottom-3 left-4 right-4 text-white">
-                        <span class="text-[10px] text-primary-fixed uppercase tracking-wider font-bold"><?= $booking['lapangan'] ?></span>
-                        <h2 class="text-base font-bold truncate"><?= $booking['nama'] ?></h2>
+                        <span class="text-[10px] text-primary-fixed uppercase tracking-wider font-bold">Futsal Vinyl Pro A</span>
+                        <h2 class="text-base font-bold truncate"><?= htmlspecialchars($lapangan['nama']) ?></h2>
                     </div>
                 </div>
 
-                <!-- Booking Details -->
                 <div class="p-4 flex flex-col gap-2 bg-surface-container-low">
                     <div class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">calendar_today</span>
-                        <span class="text-sm font-semibold text-on-surface"><?= $booking['tanggal'] ?></span>
+                        <span class="text-sm font-semibold text-on-surface"><?= $tanggalDisplay ?></span>
                     </div>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-primary">schedule</span>
-                            <span class="text-sm text-on-surface-variant"><?= $booking['jam'] ?></span>
+                            <span class="text-sm text-on-surface-variant"><?= $jamDisplay ?: 'Pilih jadwal' ?></span>
                         </div>
                         <span class="text-[10px] text-on-surface-variant bg-surface-container px-2.5 py-0.5 rounded-full font-bold">
-                            Durasi: <?= $booking['durasi'] ?>
+                            Durasi: <?= $jumlahSlot ?> Jam
                         </span>
                     </div>
                 </div>
             </div>
 
-            <!-- ============================================================
-                 Accordion Sections
-                 ============================================================ -->
+            <!-- ACCORDION SECTIONS -->
             <div class="flex flex-col gap-3">
 
-                <!-- Accordion 1: Data Kontak (Collapsed) -->
-                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="accordion-kontak">
-                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-kontak">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <!-- Data Kontak (sembunyikan default) -->
+                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="acc-kontak">
+                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="btn-kontak">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                 <span class="material-symbols-outlined text-lg">person</span>
                             </div>
-                            <div class="min-w-0">
+                            <div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-bold text-on-surface">Data Kontak</span>
                                     <span class="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">Tervalidasi</span>
                                 </div>
-                                <p class="text-xs text-secondary truncate"><?= $kontak['nama'] ?> - <?= $kontak['tim'] ?></p>
+                                <p class="text-xs text-secondary truncate">Bambang Pamungkas - Garuda FC</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-secondary text-xl transition-transform duration-200" id="acc-icon-kontak">expand_more</span>
+                        <span class="material-symbols-outlined text-secondary text-xl transition-transform duration-200" id="icon-kontak">expand_more</span>
                     </button>
-                    <div class="hidden px-4 pb-4 pt-0 bg-surface-lowest" id="acc-content-kontak">
-                        <div class="grid grid-cols-1 gap-2 p-3 rounded-lg bg-surface-container-low">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-secondary">Nama</span>
-                                <span class="text-on-surface font-semibold"><?= $kontak['nama'] ?></span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-secondary">WhatsApp</span>
-                                <span class="text-on-surface font-semibold flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-primary text-xs">call</span> <?= $kontak['wa'] ?>
-                                </span>
-                            </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-secondary">Tim</span>
-                                <span class="text-on-surface font-semibold"><?= $kontak['tim'] ?></span>
-                            </div>
+                    <div class="px-4 pb-4 hidden" id="content-kontak">
+                        <div class="p-3 bg-surface-container-low rounded-lg space-y-1 text-sm text-on-surface">
+                            <div class="flex justify-between"><span class="text-secondary">Nama</span><span class="font-semibold">Bambang Pamungkas</span></div>
+                            <div class="flex justify-between"><span class="text-secondary">WhatsApp</span><span class="font-semibold">0812-3456-7890</span></div>
+                            <div class="flex justify-between"><span class="text-secondary">Tim</span><span class="font-semibold">Garuda FC</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Accordion 2: Opsi Tambahan (Expanded by default) -->
-                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="accordion-tambahan">
-                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-tambahan">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <!-- Opsi Tambahan -->
+                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="acc-tambahan">
+                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="btn-tambahan">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                 <span class="material-symbols-outlined text-lg">sports_soccer</span>
                             </div>
-                            <div class="min-w-0">
+                            <div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm font-bold text-on-surface">Opsi Tambahan</span>
-                                    <span class="bg-surface-container text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full font-bold" id="addon-badge">2 Dipilih</span>
+                                    <span class="bg-surface-container text-on-surface-variant text-[10px] px-2 py-0.5 rounded-full font-bold" id="addon-badge">1 Dipilih</span>
                                 </div>
                                 <p class="text-xs text-secondary">Peralatan & kelengkapan match</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-secondary text-xl transform rotate-180 transition-transform duration-200" id="acc-icon-tambahan">expand_more</span>
+                        <span class="material-symbols-outlined text-secondary text-xl rotate-180 transition-transform duration-200" id="icon-tambahan">expand_more</span>
                     </button>
-                    <div class="px-4 pb-4 flex flex-col gap-2" id="acc-content-tambahan">
-
-                        <?php foreach ($opsiTambahan as $opsi):
-                            $hargaLabel = $opsi['harga'] > 0
-                                ? '<span class="text-primary font-bold text-xs">+Rp ' . number_format($opsi['harga'], 0, ',', '.') . '</span>'
-                                : '<span class="bg-primary-fixed text-on-primary-fixed text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Gratis</span>';
-                        ?>
-                        <label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors cursor-pointer">
-                            <input type="checkbox"
-                                   name="opsi[]"
-                                   value="<?= $opsi['id'] ?>"
-                                   <?= $opsi['checked'] ? 'checked' : '' ?>
-                                   class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer"
-                                   id="check-<?= $opsi['id'] ?>">
-
+                    <div class="px-4 pb-4 flex flex-col gap-2" id="content-tambahan">
+                        <?php foreach ($opsiTambahan as $opsi): ?>
+                        <label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+                            <input type="checkbox" name="opsi[]" value="<?= $opsi['id'] ?>" class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-0 accent-primary cursor-pointer"
+                                <?= ($opsi['id'] === 'bola') ? 'checked' : '' ?>
+                                id="check-<?= $opsi['id'] ?>">
                             <div class="flex-1 min-w-0">
                                 <div class="flex justify-between items-center gap-2">
                                     <span class="text-sm font-bold text-on-surface flex items-center gap-1.5">
                                         <span class="material-symbols-outlined text-primary text-base"><?= $opsi['icon'] ?></span>
                                         <?= $opsi['label'] ?>
                                     </span>
-                                    <?= $hargaLabel ?>
+                                    <?php if ($opsi['harga'] > 0): ?>
+                                    <span class="text-primary font-bold text-xs">+Rp <?= number_format($opsi['harga'], 0, ',', '.') ?></span>
+                                    <?php else: ?>
+                                    <span class="bg-primary-fixed text-on-primary-fixed text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Gratis</span>
+                                    <?php endif; ?>
                                 </div>
                                 <p class="text-xs text-secondary mt-0.5"><?= $opsi['desc'] ?></p>
                             </div>
                         </label>
                         <?php endforeach; ?>
-
                     </div>
                 </div>
 
-                <!-- Accordion 3: Metode Pembayaran (Expanded) -->
-                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="accordion-bayar">
-                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="acc-btn-bayar">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <!-- Metode Pembayaran -->
+                <div class="bg-surface-lowest rounded-xl shadow-sm overflow-hidden" id="acc-bayar">
+                    <button class="w-full p-4 flex items-center justify-between text-left hover:bg-surface-container-low transition-colors" id="btn-bayar">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                                 <span class="material-symbols-outlined text-lg">payments</span>
                             </div>
-                            <div class="min-w-0">
+                            <div>
                                 <span class="text-sm font-bold text-on-surface">Metode Pembayaran</span>
                                 <p class="text-xs text-secondary">Pilih metode pelunasan</p>
                             </div>
                         </div>
-                        <span class="material-symbols-outlined text-secondary text-xl transform rotate-180 transition-transform duration-200" id="acc-icon-bayar">expand_more</span>
+                        <span class="material-symbols-outlined text-secondary text-xl rotate-180 transition-transform duration-200" id="icon-bayar">expand_more</span>
                     </button>
-                    <div class="px-4 pb-4 flex flex-col gap-2" id="acc-content-bayar">
-
+                    <div class="px-4 pb-4 flex flex-col gap-2" id="content-bayar">
                         <?php foreach ($metodeBayar as $metode):
-                            $badgeClass = match($metode['badge']['type'] ?? '') {
+                            $badgeClass = match($metode['type']) {
                                 'success' => 'bg-primary/10 text-primary',
                                 'warning' => 'bg-amber-50 text-amber-700',
-                                default   => 'bg-surface-container text-on-surface-variant',
+                                default => 'bg-surface-container text-on-surface-variant',
                             };
                         ?>
                         <label class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-container cursor-pointer transition-all">
-                            <input type="radio"
-                                   name="payment-method"
-                                   value="<?= $metode['value'] ?>"
-                                   <?= $metode['selected'] ? 'checked' : '' ?>
-                                   class="mt-0.5 w-4 h-4 text-primary focus:ring-0 accent-primary cursor-pointer"
-                                   id="payment-<?= $metode['value'] ?>">
-
+                            <input type="radio" name="bayar" value="<?= $metode['value'] ?>" class="mt-0.5 w-4 h-4 text-primary focus:ring-0 accent-primary cursor-pointer"
+                                <?= ($metode['value'] === 'qris') ? 'checked' : '' ?>
+                                id="bayar-<?= $metode['value'] ?>">
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2">
+                                <div class="flex justify-between items-center gap-2">
                                     <span class="text-sm font-bold text-on-surface flex items-center gap-1.5">
                                         <span class="material-symbols-outlined text-primary text-base"><?= $metode['icon'] ?></span>
                                         <?= $metode['label'] ?>
                                     </span>
                                     <?php if ($metode['badge']): ?>
-                                    <span class="<?= $badgeClass ?> text-[10px] px-2 py-0.5 rounded-full font-bold"><?= $metode['badge']['text'] ?></span>
+                                    <span class="<?= $badgeClass ?> text-[10px] px-2 py-0.5 rounded-full font-bold"><?= $metode['badge'] ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <p class="text-xs text-secondary mt-0.5"><?= $metode['desc'] ?></p>
                             </div>
                         </label>
                         <?php endforeach; ?>
-
                     </div>
                 </div>
             </div>
@@ -440,200 +380,161 @@ $booking = [
                 <div class="w-10 h-10 rounded-full bg-surface-lowest flex items-center justify-center shrink-0">
                     <span class="material-symbols-outlined text-primary text-xl">security</span>
                 </div>
-                <div class="min-w-0">
+                <div>
                     <h4 class="text-sm font-bold text-on-surface">Booking 100% Terjamin</h4>
                     <p class="text-xs text-secondary">Jadwal terkunci resmi di sistem Arena</p>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <!-- ============================================================
-         STICKY BOTTOM PRICE BREAKDOWN & ACTION
-         ============================================================ -->
-    <div class="fixed bottom-0 left-0 right-0 bg-surface-lowest shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-safe z-40">
+    <!-- STICKY BOTTOM -->
+    <div class="fixed bottom-0 left-0 right-0 bg-surface-lowest shadow-[0_-4px_20px_rgba(0,0,0,0.08)] z-40">
         <div class="max-w-lg mx-auto px-4 pt-3 pb-4 flex flex-col gap-2">
-
-            <!-- Price Breakdown -->
             <div class="flex flex-col gap-1">
                 <div class="flex justify-between items-center text-xs text-secondary">
-                    <span>Sewa Lapangan (<?= $booking['durasi'] ?>)</span>
-                    <span class="text-on-surface font-semibold">Rp <?= number_format($booking['harga_lapangan'], 0, ',', '.') ?></span>
+                    <span>Sewa Lapangan (<?= $jumlahSlot ?> Jam)</span>
+                    <span class="text-on-surface font-semibold">Rp <?= number_format($totalHarga, 0, ',', '.') ?></span>
                 </div>
-
-                <!-- Rompi Row -->
-                <div class="flex justify-between items-center text-xs text-secondary" id="row-rompi">
+                <div class="flex justify-between items-center text-xs text-secondary hidden" id="row-rompi">
                     <span>Rompi Latihan</span>
-                    <span class="text-on-surface font-semibold">Rp 30.000</span>
+                    <span class="text-on-surface font-semibold">Rp <?= number_format($HARGA_ROMPI, 0, ',', '.') ?></span>
                 </div>
-
-                <!-- Wasit Row (Hidden by default) -->
-                <div class="hidden justify-between items-center text-xs text-secondary" id="row-wasit">
+                <div class="flex justify-between items-center text-xs text-secondary hidden" id="row-wasit">
                     <span>Jasa Wasit</span>
-                    <span class="text-on-surface font-semibold">Rp 100.000</span>
+                    <span class="text-on-surface font-semibold">Rp <?= number_format($HARGA_WASIT, 0, ',', '.') ?></span>
                 </div>
-
                 <div class="flex justify-between items-center text-xs text-secondary">
                     <span>Biaya Layanan</span>
-                    <span class="text-on-surface font-semibold">Rp 2.000</span>
+                    <span class="text-on-surface font-semibold">Rp <?= number_format($BIAYA_LAYANAN, 0, ',', '.') ?></span>
                 </div>
-
                 <div class="h-px bg-surface-container-high my-1"></div>
-
-                <!-- Total -->
                 <div class="flex justify-between items-baseline">
-                    <div class="flex flex-col">
+                    <div>
                         <span class="text-[10px] text-secondary font-bold uppercase tracking-wider">Total Tagihan</span>
-                        <span class="text-lg font-extrabold text-on-surface" id="grand-total">Rp 392.000</span>
+                        <span class="text-lg font-extrabold text-on-surface" id="grand-total">Rp <?= number_format($totalHarga + $BIAYA_LAYANAN, 0, ',', '.') ?></span>
                     </div>
-                    <span class="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded-full font-bold">
-                        Termasuk PPN
-                    </span>
+                    <span class="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded-full font-bold">Termasuk PPN</span>
                 </div>
             </div>
-
-            <!-- CTAs -->
-            <div class="flex flex-col gap-2">
-                <button type="button" class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all" id="btn-pay">
-                    Lanjut Bayar
-                    <span class="material-symbols-outlined text-base">arrow_forward</span>
-                </button>
-                <button type="button" class="w-full py-2 flex items-center justify-center gap-1 text-secondary hover:text-on-surface text-xs font-semibold transition-colors" id="btn-back">
-                    <span class="material-symbols-outlined text-lg">chevron_left</span>
-                    <span>Kembali ke Jadwal</span>
-                </button>
-            </div>
-
+            <button type="button" class="w-full h-12 bg-primary hover:bg-primary-container text-on-primary rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-all" id="btn-pay">
+                Lanjut Bayar
+                <span class="material-symbols-outlined text-base">arrow_forward</span>
+            </button>
+            <button type="button" class="w-full py-2 flex items-center justify-center gap-1 text-secondary hover:text-on-surface text-xs font-semibold transition-colors" id="btn-back">
+                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                Kembali ke Jadwal
+            </button>
         </div>
     </div>
 
-    <!-- ============================================================
-         JAVASCRIPT - Vanilla JS
-         ============================================================ -->
+    <!-- JAVASCRIPT -->
     <script>
     (function() {
         'use strict';
 
-        /* Tombol Kembali */
-        var btnBack = document.getElementById('btn-back');
-        if (btnBack) {
-            btnBack.addEventListener('click', function() {
-                window.location.href = 'detail_jadwal.php';
-            });
-        }
+        // ============================================================
+        // UTILITY
+        // ============================================================
+        function $(id) { return document.getElementById(id); }
 
-        var headerBack = document.getElementById('btnBack');
-        if (headerBack) {
-            headerBack.addEventListener('click', function() {
-                window.location.href = 'detail_jadwal.php';
-            });
-        }
+        // ============================================================
+        // TOMBOL KEMBALI
+        // ============================================================
+        $('btnBack').onclick = function() { history.back(); };
+        $('btn-back').onclick = function() { history.back(); };
 
-        /* Accordion Logic */
+        // ============================================================
+        // ACCORDION
+        // ============================================================
         function setupAccordion(btnId, contentId, iconId) {
-            var btn = document.getElementById(btnId);
-            var content = document.getElementById(contentId);
-            var icon = document.getElementById(iconId);
-
+            var btn = $(btnId);
+            var content = $(contentId);
+            var icon = $(iconId);
             if (!btn || !content || !icon) return;
-
-            btn.addEventListener('click', function() {
+            btn.onclick = function() {
                 var isHidden = content.classList.contains('hidden');
                 if (isHidden) {
                     content.classList.remove('hidden');
-                    icon.classList.add('rotate-180');
+                    icon.style.transform = 'rotate(180deg)';
                 } else {
                     content.classList.add('hidden');
-                    icon.classList.remove('rotate-180');
+                    icon.style.transform = 'rotate(0deg)';
                 }
-            });
+            };
         }
 
-        setupAccordion('acc-btn-kontak', 'acc-content-kontak', 'acc-icon-kontak');
-        setupAccordion('acc-btn-tambahan', 'acc-content-tambahan', 'acc-icon-tambahan');
-        setupAccordion('acc-btn-bayar', 'acc-content-bayar', 'acc-icon-bayar');
+        // Setup accordions (semua terbuka default KECUALI kontak)
+        setupAccordion('btn-tambahan', 'content-tambahan', 'icon-tambahan');
+        setupAccordion('btn-bayar', 'content-bayar', 'icon-bayar');
 
-        /* Dynamic Price Calculation */
-        var BASE_PITCH = <?= $booking['harga_lapangan'] ?>;
-        var SERVICE_FEE = 2000;
+        // ============================================================
+        // HITUNG TOTAL
+        // ============================================================
+        var BASE_PITCH = <?= $totalHarga ?>;
+        var SERVICE_FEE = <?= $BIAYA_LAYANAN ?>;
+        var HARGA_ROMPI = <?= $HARGA_ROMPI ?>;
+        var HARGA_WASIT = <?= $HARGA_WASIT ?>;
 
-        var checkRompi = document.getElementById('check-rompi');
-        var checkWasit = document.getElementById('check-wasit');
-        var checkBola = document.getElementById('check-bola');
-
-        var rowRompi = document.getElementById('row-rompi');
-        var rowWasit = document.getElementById('row-wasit');
-        var grandTotalEl = document.getElementById('grand-total');
-        var addonBadge = document.getElementById('addon-badge');
-
-        function calculateTotal() {
+        function hitungTotal() {
             var total = BASE_PITCH + SERVICE_FEE;
-            var selectedCount = 0;
+            var selectedCount = 1;
 
-            if (checkRompi && checkRompi.checked) {
-                total += 30000;
+            var rompi = $('check-rompi');
+            var wasit = $('check-wasit');
+            var bola = $('check-bola');
+            var rowRompi = $('row-rompi');
+            var rowWasit = $('row-wasit');
+            var grandTotal = $('grand-total');
+            var addonBadge = $('addon-badge');
+
+            if (rompi && rompi.checked) {
+                total += HARGA_ROMPI;
                 selectedCount++;
-                if (rowRompi) {
-                    rowRompi.classList.remove('hidden');
-                    rowRompi.classList.add('flex');
-                }
+                rowRompi.classList.remove('hidden');
             } else if (rowRompi) {
                 rowRompi.classList.add('hidden');
-                rowRompi.classList.remove('flex');
             }
 
-            if (checkWasit && checkWasit.checked) {
-                total += 100000;
+            if (wasit && wasit.checked) {
+                total += HARGA_WASIT;
                 selectedCount++;
-                if (rowWasit) {
-                    rowWasit.classList.remove('hidden');
-                    rowWasit.classList.add('flex');
-                }
+                rowWasit.classList.remove('hidden');
             } else if (rowWasit) {
                 rowWasit.classList.add('hidden');
-                rowWasit.classList.remove('flex');
             }
 
-            if (checkBola && checkBola.checked) {
-                selectedCount++;
-            }
+            if (bola && bola.checked) selectedCount++;
 
-            if (addonBadge) {
-                addonBadge.textContent = selectedCount + ' Dipilih';
-            }
-
-            if (grandTotalEl) {
-                grandTotalEl.textContent = 'Rp ' + total.toLocaleString('id-ID');
-            }
+            if (addonBadge) addonBadge.textContent = selectedCount + ' Dipilih';
+            if (grandTotal) grandTotal.textContent = 'Rp ' + total.toLocaleString('id-ID');
         }
 
-        if (checkRompi) checkRompi.addEventListener('change', calculateTotal);
-        if (checkWasit) checkWasit.addEventListener('change', calculateTotal);
-        if (checkBola) checkBola.addEventListener('change', calculateTotal);
+        // Event listener untuk checkbox opsi tambahan
+        ['rompi', 'wasit', 'bola'].forEach(function(id) {
+            var el = $('check-' + id);
+            if (el) el.addEventListener('change', hitungTotal);
+        });
 
-        /* Pay Button Micro-interaction */
-        var btnPay = document.getElementById('btn-pay');
-        if (btnPay) {
-            btnPay.addEventListener('click', function() {
-                btnPay.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">progress_activity</span><span>Memproses...</span>';
-                btnPay.disabled = true;
+        // ============================================================
+        // TOMBOL BAYAR
+        // ============================================================
+        $('btn-pay').onclick = function() {
+            var btn = this;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-xl">progress_activity</span><span>Memproses...</span>';
+            btn.disabled = true;
 
+            setTimeout(function() {
+                btn.innerHTML = '<span>Berhasil!</span><span class="material-symbols-outlined text-xl">done_all</span>';
                 setTimeout(function() {
-                    btnPay.innerHTML = '<span>Berhasil!</span><span class="material-symbols-outlined text-xl">done_all</span>';
+                    window.location.href = 'tiket.php';
+                }, 1000);
+            }, 800);
+        };
 
-                    setTimeout(function() {
-                        window.location.href = 'tiket.php';
-                    }, 1000);
-                }, 800);
-            });
-        }
-
-        /* Initialize */
-        calculateTotal();
-
+        // Initialize
+        hitungTotal();
     })();
     </script>
-
 </body>
 </html>
