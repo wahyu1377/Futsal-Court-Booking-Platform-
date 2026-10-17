@@ -19,7 +19,7 @@
       <strong id="alertTitle"></strong><span id="alertText"></span>
     </div>
 
-    <form id="loginForm" data-api="../../../backend/api/auth/login.php" novalidate>
+    <form id="loginForm" data-api="../../backend/api/auth/login.php" novalidate>
       <div class="mb-3">
         <label class="form-label" for="identifier">Email atau Nomor HP</label>
         <div class="input-icon"><i class="bi bi-envelope lead"></i>
