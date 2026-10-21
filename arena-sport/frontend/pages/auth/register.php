@@ -19,7 +19,7 @@
       <strong id="alertTitle"></strong><span id="alertText"></span>
     </div>
 
-    <form id="registerForm" data-api="../../backend/api/auth/register.php" novalidate>
+    <form id="registerForm" data-api="../../../backend/api/auth/register.php" novalidate>
 
         <div class="mb-4">
     <label class="form-label">Daftar sebagai</label>

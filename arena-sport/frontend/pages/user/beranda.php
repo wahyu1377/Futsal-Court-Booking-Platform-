@@ -107,7 +107,7 @@ $extraJs   = '../../assets/js/beranda.js';
   <!-- Daftar kartu (diisi JS) -->
     <div id="resultInfo" class="small text-secondary mb-2"></div>
     <div class="row g-3" id="courtList"
-       data-api="../../backend/api/user/lapangan.php"
+       data-api="../../../backend/api/user/lapangan.php"
        data-img="../../assets/img/lapangan/"
        data-detail="detail_jadwal.php"></div>
 
