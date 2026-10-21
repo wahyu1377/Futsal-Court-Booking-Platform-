@@ -9,21 +9,116 @@
 // Konfigurasi halaman
 $pageTitle = 'Checkout Booking';
 
+// Berkas inti yang dipakai halaman ini
+require_once dirname(__DIR__, 3) . '/backend/config/database.php';
+require_once dirname(__DIR__, 3) . '/backend/core/harga.php';
+require_once dirname(__DIR__, 3) . '/backend/core/jadwal.php';
+
 // ============================================================
 // AMBIL DATA DARI DETAIL JADWAL
 // ============================================================
 $lapanganId = isset($_GET['id']) ? (int)$_GET['id'] : 1;
-$slotsTerpilih = isset($_GET['slot']) ? $_GET['slot'] : [];
+$slotsTerpilih = isset($_GET['slot']) ? (array)$_GET['slot'] : [];
 $tanggalPilih = isset($_GET['tanggal']) ? $_GET['tanggal'] : date('Y-m-d');
 
 // ============================================================
-// KONFIGURASI HARGA
+// VALIDASI INPUT (Cegah manipulasi dari address bar)
 // ============================================================
-$HARGA_NORMAL = 150000;
-$HARGA_PRIME_TIME = 180000;
+// Slot dan tanggal datang lewat query string, jadi harus dicek ulang di server.
+// Aturan slot: harus ada di daftar slot operasional, statusnya available, dan
+// tidak boleh dikirim dua kali.
+$pesanError = '';
+$slotValid   = validasiSlot($slotsTerpilih);
+
+if ($slotValid === null) {
+    $pesanError = 'Slot yang dipilih tidak valid, sudah dipesan, atau tidak tersedia. Silakan pilih ulang slot pada halaman jadwal.';
+} else {
+    // Tanggal main harus sah dan berada dalam 7 hari ke depan
+    $tanggalCek  = DateTime::createFromFormat('Y-m-d', $tanggalPilih);
+    $hariIni     = new DateTime('today');
+
+    if (!$tanggalCek || $tanggalCek->format('Y-m-d') !== $tanggalPilih) {
+        $pesanError = 'Tanggal main tidak valid.';
+    } elseif ($tanggalCek < $hariIni) {
+        $pesanError = 'Tanggal main tidak boleh di masa lalu.';
+    } elseif ($tanggalCek->diff($hariIni)->days > 6) {
+        $pesanError = 'Tanggal main hanya bisa dipilih dalam 7 hari ke depan.';
+    }
+}
+
+// Ganti daftar slot dengan hasil validasi (sudah terurut berdasarkan jam mulai)
+if ($pesanError === '') {
+    $slotsTerpilih = array_column($slotValid, 'jam');
+}
+
+// Tampilkan halaman error dan hentikan proses bila input tidak valid
+if ($pesanError !== '') {
+    http_response_code(400);
+    ?>
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Slot tidak valid - Arena Sport</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+    <body class="bg-light">
+      <main class="container py-5" style="max-width: 460px;">
+        <div class="card shadow-sm border-0">
+          <div class="card-body text-center p-4">
+            <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 2.5rem;"></i>
+            <h1 class="h5 fw-bold mt-3 mb-2">Slot tidak valid</h1>
+            <p class="text-secondary small mb-4"><?= htmlspecialchars($pesanError) ?></p>
+            <a href="detail_jadwal.php?id=<?= (int) $lapanganId ?>" class="btn btn-primary w-100">
+              <i class="bi bi-arrow-left me-1"></i> Kembali ke Halaman Jadwal
+            </a>
+          </div>
+        </div>
+      </main>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
+// ============================================================
+// BIAYA TAMBAHAN & BIAYA LAYANAN
+// ============================================================
 $HARGA_ROMPI = 30000;
 $HARGA_WASIT = 100000;
 $BIAYA_LAYANAN = 2000;
+
+// ============================================================
+// AMBIL DATA LAPANGAN DARI DATABASE
+// ============================================================
+// Dilakukan lebih dulu karena harga slot dihitung dari `lapangan.harga_per_jam`,
+// bukan dari angka manual.
+
+try {
+    $pdo = db();
+    $stmt = $pdo->prepare("SELECT * FROM lapangan WHERE id = ? AND aktif = 1");
+    $stmt->execute([$lapanganId]);
+    $lapangan = $stmt->fetch();
+
+    if (!$lapangan) {
+        $lapangan = [
+            'nama' => 'Champion Futsal Arena',
+            'jenis' => 'futsal',
+            'harga_per_jam' => 150000
+        ];
+    }
+} catch (Exception $e) {
+    $lapangan = [
+        'nama' => 'Champion Futsal Arena',
+        'jenis' => 'futsal',
+        'harga_per_jam' => 150000
+    ];
+}
+
+// Harga dasar per jam diambil dari database
+$hargaPerJam = (int) ($lapangan['harga_per_jam'] ?? 0);
 
 // ============================================================
 // HITUNG DURASI DAN TOTAL
@@ -34,17 +129,8 @@ $jamMulai = '';
 $jamSelesai = '';
 
 foreach ($slotsTerpilih as $index => $slot) {
-    preg_match('/^(\d{2})\.(\d{2})/', $slot, $matches);
-    $jam = isset($matches[1]) ? (int)$matches[1] : 0;
-
-    // Tentukan harga berdasarkan jam
-    if ($jam >= 15 && $jam < 21) {
-        $hargaSlot = $HARGA_PRIME_TIME;
-    } else {
-        $hargaSlot = $HARGA_NORMAL;
-    }
-
-    $totalHarga += $hargaSlot;
+    // Harga tiap slot mengikuti aturan tunggal di backend/core/harga.php
+    $totalHarga += hargaSlot($hargaPerJam, jamDariSlot($slot));
 
     if ($index === 0) $jamMulai = $slot;
     if ($index === count($slotsTerpilih) - 1) $jamSelesai = $slot;
@@ -54,8 +140,10 @@ foreach ($slotsTerpilih as $index => $slot) {
 $jamDisplay = '';
 if ($jamMulai && $jamSelesai) {
     $jamAwal = explode(' - ', $jamMulai)[0] . ' WIB';
-    $jamAkhir = explode(' - ', $jamSelesai)[1] ?? '';
-    $jamDisplay = $jamAwal . ' - ' . $jamAkhir . ' WIB';
+    // Jam akhir sudah ikut membawa "WIB" dari teks slot, normalisasi dulu
+    // supaya tidak tampil dua kali (mis. "22.00 WIB WIB").
+    $jamAkhir = preg_replace('/\s*WIB$/', '', explode(' - ', $jamSelesai)[1] ?? '') . ' WIB';
+    $jamDisplay = $jamAwal . ' - ' . $jamAkhir;
 }
 
 // Format tanggal
@@ -70,30 +158,6 @@ if ($tanggalObj) {
 
 // Generate Booking ID
 $bookingId = 'BKG-' . strtoupper(substr(md5(uniqid()), 0, 4));
-
-// ============================================================
-// AMBIL DATA LAPANGAN DARI DATABASE
-// ============================================================
-require_once dirname(__DIR__, 3) . '/backend/config/database.php';
-
-try {
-    $pdo = db();
-    $stmt = $pdo->prepare("SELECT * FROM lapangan WHERE id = ? AND aktif = 1");
-    $stmt->execute([$lapanganId]);
-    $lapangan = $stmt->fetch();
-
-    if (!$lapangan) {
-        $lapangan = [
-            'nama' => 'Champion Futsal Arena',
-            'jenis' => 'futsal'
-        ];
-    }
-} catch (Exception $e) {
-    $lapangan = [
-        'nama' => 'Champion Futsal Arena',
-        'jenis' => 'futsal'
-    ];
-}
 
 // ============================================================
 // OPSI TAMBAHAN

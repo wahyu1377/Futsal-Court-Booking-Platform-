@@ -13,6 +13,8 @@ $pageTitle = 'Detail & Jadwal';
 // AMBIL DATA DARI DATABASE
 // ============================================================
 require_once dirname(__DIR__, 3) . '/backend/config/database.php';
+require_once dirname(__DIR__, 3) . '/backend/core/harga.php';
+require_once dirname(__DIR__, 3) . '/backend/core/jadwal.php';
 
 $lapanganId = isset($_GET['id']) ? (int)$_GET['id'] : 1;
 
@@ -63,22 +65,27 @@ try {
 // ============================================================
 // DATA SLOT JAM (8 jam operasional)
 // ============================================================
-$slots = [
-    ['jam'=>'08.00 - 09.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
-    ['jam'=>'09.00 - 10.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
-    ['jam'=>'10.00 - 11.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
-    ['jam'=>'11.00 - 12.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'booked'],
-    ['jam'=>'12.00 - 13.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
-    ['jam'=>'13.00 - 14.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'booked'],
-    ['jam'=>'14.00 - 15.00 WIB','harga'=>$lapangan['harga_per_jam'],'status'=>'available'],
-    ['jam'=>'15.00 - 16.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'available'],
-    ['jam'=>'16.00 - 17.00 WIB','harga'=>180000,'label'=>'Prime Time','status'=>'available'],
-    ['jam'=>'17.00 - 18.00 WIB','harga'=>180000,'status'=>'booked'],
-    ['jam'=>'18.00 - 19.00 WIB','harga'=>180000,'status'=>'available'],
-    ['jam'=>'19.00 - 20.00 WIB','harga'=>180000,'status'=>'available'],
-    ['jam'=>'20.00 - 21.00 WIB','harga'=>180000,'status'=>'available'],
-    ['jam'=>'21.00 - 22.00 WIB','harga'=>180000,'status'=>'available'],
-];
+// Harga slot dihitung dari `lapangan.harga_per_jam` lewat aturan tunggal di
+// backend/core/harga.php, supaya harga yang tampil di sini sama persis dengan
+// yang ditagih di checkout.php.
+$hargaPerJam = (int) ($lapangan['harga_per_jam'] ?? 150000);
+
+// Slot dan statusnya berasal dari backend/core/jadwal.php, sumber yang sama
+// dengan yang dipakai validasi server di checkout.php. Jadi slot yang tampil
+// terkunci di sini pasti juga ditolak kalau dikirim lewat URL.
+//
+// Label "Prime Time" hanya untuk tampilan, mengikuti desain awal.
+$labelPrimeTime = ['15.00 - 16.00 WIB', '16.00 - 17.00 WIB'];
+
+$slots = [];
+foreach (daftarSlot() as $slot) {
+    $slots[] = [
+        'jam'    => $slot['jam'],
+        'harga'  => hargaSlot($hargaPerJam, $slot['mulai']),
+        'label'  => in_array($slot['jam'], $labelPrimeTime, true) ? 'Prime Time' : null,
+        'status' => $slot['status'],
+    ];
+}
 
 // ============================================================
 // DATA TANGGAL (7 hari ke depan)
@@ -161,6 +168,17 @@ function formatRupiah($angka) {
             vertical-align: middle;
         }
         ::-webkit-scrollbar { display: none; }
+
+        /* Pilihan tanggal main: warna hijau ikut ke tanggal yang sedang dipilih.
+           Dipakai :has() supaya tidak perlu JavaScript untuk memindahkan gaya. */
+        .date-option:has(input:checked) {
+            background-color: #006948;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.10);
+        }
+        .date-option:has(input:checked) .date-day { color: #85f8c4; }
+        .date-option:has(input:checked) .date-dot { opacity: 1; }
+
         .hide-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -336,14 +354,11 @@ function formatRupiah($angka) {
                 </div>
                 <div class="flex items-center gap-2 overflow-x-auto py-1 hide-scrollbar">
                     <?php foreach ($tanggalList as $t): ?>
-                    <label class="flex flex-col items-center justify-center min-w-[52px] py-3 px-2 rounded-xl cursor-pointer transition-all active:scale-95
-                        <?= !empty($t['aktif']) ? 'bg-primary text-on-primary shadow-md' : 'bg-surface-lowest shadow-sm text-on-surface hover:bg-surface-container-low' ?>">
-                        <input type="radio" name="tanggal" value="<?= $t['val'] ?>" <?= !empty($t['aktif']) ? 'checked' : '' ?> class="hidden peer">
-                        <span class="text-[10px] font-semibold uppercase tracking-wider <?= !empty($t['aktif']) ? 'text-primary-fixed' : 'text-secondary' ?>"><?= $t['hari'] ?></span>
+                    <label class="date-option flex flex-col items-center justify-center min-w-[52px] py-3 px-2 rounded-xl cursor-pointer transition-all active:scale-95 bg-surface-lowest shadow-sm text-on-surface hover:bg-surface-container-low">
+                        <input type="radio" name="tanggal" value="<?= $t['val'] ?>" form="bookingForm" <?= !empty($t['aktif']) ? 'checked' : '' ?> class="hidden peer">
+                        <span class="date-day text-[10px] font-semibold uppercase tracking-wider text-secondary"><?= $t['hari'] ?></span>
                         <span class="text-base font-bold leading-none mt-1"><?= $t['tgl'] ?></span>
-                        <?php if (!empty($t['aktif'])): ?>
-                        <span class="w-1.5 h-1.5 bg-primary-fixed rounded-full mt-1"></span>
-                        <?php endif; ?>
+                        <span class="date-dot w-1.5 h-1.5 bg-primary-fixed rounded-full mt-1 opacity-0"></span>
                     </label>
                     <?php endforeach; ?>
                 </div>
