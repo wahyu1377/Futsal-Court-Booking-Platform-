@@ -187,3 +187,49 @@ if (regForm) {
     loading(btn, false, label);
   });
 }
+
+// ===== LOGIN / DAFTAR DENGAN GOOGLE =====
+const gBox = $('#googleBtn');
+if (gBox) {
+  const roleModalEl = $('#roleModal');                       // hanya ada di halaman login
+  const roleModal = roleModalEl ? new bootstrap.Modal(roleModalEl) : null;
+  let pendingCredential = null;
+
+  async function sendGoogle(credential, role) {
+    $('#alertBox').classList.add('d-none');
+    const payload = { credential };
+    if (role) payload.role = role;
+    try {
+      const r = await post(gBox.dataset.api, payload);
+      if (r.success && r.need_role && roleModal) {            // akun baru: tanya jenis akun
+        pendingCredential = credential;
+        roleModal.show();
+        return;
+      }
+      if (r.success) { location.href = REDIRECT[r.role] || REDIRECT.user; return; }
+      showAlert('Masuk dengan Google gagal', r.message);
+    } catch { showAlert('Koneksi Gagal', 'Tidak dapat terhubung ke server.'); }
+  }
+
+  // Dipanggil otomatis oleh skrip Google setelah selesai dimuat
+  window.onGoogleLibraryLoad = () => {
+    google.accounts.id.initialize({
+      client_id: gBox.dataset.clientId,
+      callback: resp => {
+        const radio = document.querySelector('input[name="role"]:checked');   // ada di halaman daftar
+        sendGoogle(resp.credential, radio ? radio.value : null);
+      }
+    });
+    google.accounts.id.renderButton(gBox, {
+      type: 'standard', theme: 'outline', size: 'large', locale: 'id',
+      text: gBox.dataset.text || 'continue_with', logo_alignment: 'center',
+      width: Math.min(400, Math.round(gBox.getBoundingClientRect().width)) || 320
+    });
+  };
+
+  // Pilihan di modal -> kirim ulang token bersama jenis akun yang dipilih
+  document.querySelectorAll('[data-role-pick]').forEach(btn => btn.addEventListener('click', () => {
+    roleModal.hide();
+    if (pendingCredential) sendGoogle(pendingCredential, btn.dataset.rolePick);
+  }));
+}
