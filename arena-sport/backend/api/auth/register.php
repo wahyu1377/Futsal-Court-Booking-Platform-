@@ -34,13 +34,23 @@ if (empty($d['terms']))
 if ($errors) respond(false, 'Data belum valid.', ['errors' => $errors], 422);
 
 $pdo = db();
-$cek = $pdo->prepare("SELECT id FROM users WHERE $type = ?");
-$cek->execute([$value]);
-if ($cek->fetch()) {
+
+// Email/HP tidak boleh dipakai di tabel mana pun (users maupun owners)
+[$ada] = findAccount($pdo, $type, $value);
+if ($ada) {
     respond(false, 'Akun sudah terdaftar.', ['errors' => ['identifier' => 'Email/nomor HP sudah terdaftar.']], 409);
 }
 
-$pdo->prepare("INSERT INTO users (full_name, $type, password_hash, role) VALUES (?, ?, ?, ?)")
-    ->execute([$name, $value, password_hash($pass, PASSWORD_DEFAULT), $role]);
+$table = tableFor($role);
+try {
+    $pdo->prepare("INSERT INTO $table (full_name, $type, password_hash) VALUES (?, ?, ?)")
+        ->execute([$name, $value, password_hash($pass, PASSWORD_DEFAULT)]);
+} catch (PDOException $e) {
+    if ($e->getCode() === '23505') {   // pelanggaran unique (kasus dua pendaftaran bersamaan)
+        respond(false, 'Akun sudah terdaftar.', ['errors' => ['identifier' => 'Email/nomor HP sudah terdaftar.']], 409);
+    }
+    error_log('Register gagal: ' . $e->getMessage());
+    respond(false, 'Terjadi kesalahan server.', [], 500);
+}
 
 respond(true, 'Pendaftaran berhasil! Silakan masuk.');

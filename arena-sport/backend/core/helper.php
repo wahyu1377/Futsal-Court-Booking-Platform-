@@ -26,3 +26,20 @@ function parseIdentifier(string $id): array {
     }
     return [null, null];
 }
+
+// Nama tabel sesuai role
+function tableFor(string $role): string {
+    return $role === 'owner' ? 'owners' : 'users';
+}
+
+// Cari akun di tabel users, lalu owners.
+// Mengembalikan [baris, 'user'|'owner'], atau [null, null] kalau tidak ada.
+function findAccount(PDO $pdo, string $type, string $value): array {
+    foreach (['user', 'owner'] as $role) {
+        $table = tableFor($role);               // nama tabel dari daftar tetap, aman
+        $st = $pdo->prepare("SELECT * FROM $table WHERE $type = ?");   // $type hanya 'email' atau 'phone'
+        $st->execute([$value]);
+        if ($row = $st->fetch()) return [$row, $role];
+    }
+    return [null, null];
+}
