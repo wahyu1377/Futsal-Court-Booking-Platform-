@@ -19,24 +19,24 @@ $urutan = [
 ];
 $orderBy = $urutan[$_GET['urut'] ?? 'rating'] ?? $urutan['rating'];
 
-$where  = ['aktif = 1'];
+$where  = ['aktif = TRUE'];
 $params = [];
 
 if ($jenis !== '') { $where[] = 'jenis = ?'; $params[] = $jenis; }
 
 if ($q !== '') {
-    $where[] = '(nama LIKE ? OR jenis LIKE ? OR kecamatan LIKE ? OR kota LIKE ?)';
+    $where[] = '(nama ILIKE ? OR jenis ILIKE ? OR kecamatan ILIKE ? OR kota ILIKE ?)';
     $like = '%' . $q . '%';
     array_push($params, $like, $like, $like, $like);
 }
 if ($minHarga !== null) { $where[] = 'harga_per_jam >= ?'; $params[] = $minHarga; }
 if ($maxHarga !== null) { $where[] = 'harga_per_jam <= ?'; $params[] = $maxHarga; }
 if ($ratingMin > 0)     { $where[] = 'rating >= ?';        $params[] = $ratingMin; }
-if ($tersedia)          { $where[] = 'tersedia_hari_ini = 1'; }
+if ($tersedia)          { $where[] = 'tersedia_hari_ini = TRUE'; }
 
 // Semua fasilitas yang dipilih harus dimiliki lapangan
 foreach ($fasilitas as $fas) {
-    $where[]  = "CONCAT(',', REPLACE(fasilitas, ', ', ','), ',') LIKE ?";
+    $where[]  = "CONCAT(',', REPLACE(fasilitas, ', ', ','), ',') ILIKE ?";
     $params[] = '%,' . addcslashes($fas, '%_\\') . ',%';
 }
 
@@ -50,12 +50,12 @@ $st = $pdo->prepare(
 $st->execute($params);
 
 // Jumlah per kategori untuk chip (tidak terpengaruh filter)
-$counts = $pdo->query("SELECT jenis, COUNT(*) AS c FROM lapangan WHERE aktif = 1 GROUP BY jenis ORDER BY c DESC")
+$counts = $pdo->query("SELECT jenis, COUNT(*) AS c FROM lapangan WHERE aktif = TRUE GROUP BY jenis ORDER BY c DESC")
               ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 // Pilihan untuk panel filter: daftar fasilitas unik + rentang tarif
 $opsi = [];
-$rows = $pdo->query("SELECT fasilitas FROM lapangan WHERE aktif = 1 AND fasilitas IS NOT NULL AND fasilitas <> ''")
+$rows = $pdo->query("SELECT fasilitas FROM lapangan WHERE aktif = TRUE AND fasilitas IS NOT NULL AND fasilitas <> ''")
             ->fetchAll(PDO::FETCH_COLUMN);
 foreach ($rows as $row) {
     foreach (explode(',', $row) as $f) {
@@ -65,7 +65,7 @@ foreach ($rows as $row) {
 }
 $opsi = array_keys($opsi);
 sort($opsi);
-$range = $pdo->query("SELECT MIN(harga_per_jam) AS mn, MAX(harga_per_jam) AS mx FROM lapangan WHERE aktif = 1")->fetch();
+$range = $pdo->query("SELECT MIN(harga_per_jam) AS mn, MAX(harga_per_jam) AS mx FROM lapangan WHERE aktif = TRUE")->fetch();
 
 respond(true, 'OK', [
     'data'    => $st->fetchAll(),
