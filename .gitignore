@@ -1,1 +1,16 @@
-backend/config/database.local.php
+# Kredensial & konfigurasi lokal (jangan pernah di-commit)
+.env
+.env.local
+arena-sport/backend/config/database.local.php
+
+# Foto lapangan yang diunggah owner (jangan ikut di-commit)
+arena-sport/frontend/assets/img/lapangan/owner/
+
+# Log & berkas sementara
+*.log
+npm-debug.log*
+
+# Berkas OS
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,107 @@
+/* =========================================================
+   ARENA SPORT - Halaman owner (dashboard & kelola lapangan)
+   Memakai token warna yang sama dengan app.css.
+   ========================================================= */
+
+/* Baris atas halaman owner */
+.owner-bar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line);
+  box-shadow:0 2px 10px rgba(13,27,46,.04)}
+.owner-bar a.icon-back{display:flex;align-items:center;justify-content:center;width:36px;height:36px;
+  border-radius:999px;color:var(--muted);text-decoration:none;transition:background .15s}
+.owner-bar a.icon-back:hover{background:var(--field);color:var(--ink)}
+
+/* Kartu ringkasan (jumlah lapangan, tarif, dan lain-lain) */
+.stat-card{background:#fff;border-radius:18px;padding:.9rem 1rem;box-shadow:0 4px 14px rgba(13,27,46,.06);height:100%}
+.stat-card .label{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.stat-card .value{font-size:1.15rem;font-weight:800;color:var(--ink);line-height:1.2}
+.stat-card .value small{font-size:.75rem;font-weight:600;color:var(--muted)}
+
+/* Stepper (Informasi Dasar -> Fasilitas & Harga -> Foto) */
+.stepper{display:flex;align-items:center;gap:.5rem;padding:.85rem 1rem;background:#fff;border-bottom:1px solid var(--line)}
+.stepper .step{display:flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.stepper .step .nomor{display:flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:999px;
+  background:var(--field);color:var(--muted);font-size:.68rem;font-weight:800}
+.stepper .step.active{color:var(--green)}
+.stepper .step.active .nomor{background:var(--green);color:#fff}
+.stepper .step.done{color:var(--green)}
+.stepper .step.done .nomor{background:#e6f6ee;color:var(--green)}
+.stepper .garis{flex:1;height:2px;background:var(--line)}
+
+/* Pilihan berbentuk kartu (radio button untuk jenis / fasilitas) */
+.pilihan{position:relative;display:inline-flex}
+.pilihan input{position:absolute;opacity:0;width:0;height:0}
+.pilihan span{display:block;border:2px solid var(--line);border-radius:14px;padding:.55rem 1rem;font-weight:700;
+  font-size:.88rem;color:var(--muted);cursor:pointer;transition:all .15s;background:#fff}
+.pilihan span:hover{border-color:var(--green);color:var(--green)}
+.pilihan input:checked + span{border-color:var(--green);background:#e6f6ee;color:var(--green)}
+.pilihan input:focus-visible + span{box-shadow:0 0 0 .2rem rgba(0,106,74,.2)}
+
+/* Field form */
+.field-label{display:block;font-weight:800;font-size:.85rem;margin-bottom:.4rem}
+.field-label .wajib{color:#b3141b}
+.field-input{width:100%;border:2px solid transparent;background:var(--field);border-radius:14px;padding:.75rem .9rem;
+  font-size:.92rem;font-weight:600;color:var(--ink);box-shadow:none}
+.field-input:focus{background:#fff;border-color:var(--green);outline:none;box-shadow:0 0 0 .2rem rgba(0,106,74,.12)}
+.field-input.is-invalid{border-color:#b3141b;background:#fff7f7}
+.field-error{color:#b3141b;font-weight:600;font-size:.8rem;margin-top:.35rem}
+.field-error:empty{display:none}
+
+/* Panel langkah (hanya satu yang tampil per waktu) */
+.langkah-panel{display:none}
+.langkah-panel.aktif{display:block}
+
+/* Bar aksi tetap di bawah (mobile) */
+.aksi-tetap{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid var(--line);
+  padding:.85rem 1rem calc(.85rem + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(13,27,46,.07)}
+.btn-lembut{background:var(--field);color:var(--ink);font-weight:700;border:0;border-radius:14px;padding:.8rem 1.2rem}
+.btn-lembut:hover{background:#e2e8ff;color:var(--ink)}
+
+/* Status aktif / nonaktif pada kartu */
+.status{position:absolute;top:.8rem;right:.8rem;font-size:.72rem;font-weight:800;border-radius:999px;padding:.2rem .65rem}
+.status.aktif{background:#e6f6ee;color:var(--green)}
+.status.nonaktif{background:#f1f1f4;color:var(--muted)}
+
+/* Galeri pilihan foto */
+.foto-pilihan{position:relative;border:2px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .15s}
+.foto-pilihan img{width:100%;height:96px;object-fit:cover;display:block}
+.foto-pilihan span{display:block;padding:.4rem .5rem;font-size:.72rem;font-weight:700;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foto-pilihan:hover{border-color:var(--green)}
+.foto-pilihan.terpilih{border-color:var(--green);box-shadow:0 0 0 .15rem rgba(0,106,74,.18)}
+.foto-pilihan.terpilih span{color:var(--green)}
+
+/* Pilihan sumber foto (galeri bawaan / foto sendiri) */
+.pilihan-sumber{position:relative;display:block;cursor:pointer}
+.pilihan-sumber input{position:absolute;opacity:0;width:0;height:0}
+.pilihan-sumber span{display:block;border:2px solid var(--line);border-radius:16px;padding:.75rem 1rem;
+  font-weight:700;font-size:.9rem;color:var(--ink);background:#fff;transition:all .15s}
+.pilihan-sumber span small{display:block;font-weight:600;font-size:.74rem;color:var(--muted);margin-top:.15rem}
+.pilihan-sumber:hover span{border-color:var(--green)}
+.pilihan-sumber input:checked + span{border-color:var(--green);background:#e6f6ee}
+.pilihan-sumber input:checked + span small{color:var(--green)}
+
+/* Foto yang sudah dipilih (dengan tombol hapus) */
+.foto-terpilih{position:relative;border:2px solid var(--green);border-radius:14px;overflow:hidden;background:#fff}
+.foto-terpilih img{width:100%;height:84px;object-fit:cover;display:block}
+.foto-terpilih .hapus-foto{position:absolute;top:4px;right:4px;width:24px;height:24px;border:0;border-radius:999px;
+  background:rgba(0,0,0,.55);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.foto-terpilih .hapus-foto:hover{background:#b3141b}
+.foto-terpilih .keterangan-foto{display:block;padding:.35rem .5rem;font-size:.7rem;font-weight:700;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Kartu notifikasi (muncul setelah aksi berhasil) */
+.notif-card{position:fixed;left:1rem;right:1rem;bottom:1rem;z-index:60;display:flex;align-items:center;gap:.75rem;
+  background:#fff;border:1px solid var(--line);border-radius:18px;padding:.85rem 1rem;
+  box-shadow:0 12px 30px rgba(13,27,46,.18);transform:translateY(150%);opacity:0;
+  transition:transform .3s ease,opacity .3s ease}
+.notif-card.tampil{transform:translateY(0);opacity:1}
+.notif-ikon{flex:none;display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:999px;
+  background:#e6f6ee;color:var(--green);font-size:1.25rem}
+.notif-ikon-danger{background:#fdecec;color:#b3141b}
+.notif-isi{flex:1;min-width:0}
+.notif-isi strong{display:block;font-weight:800;font-size:.92rem;color:var(--ink)}
+.notif-isi small{display:block;color:var(--muted);font-size:.78rem;line-height:1.35}
+.notif-tutup{flex:none;border:0;background:none;color:var(--muted);font-size:1.05rem;padding:.25rem}
+@media (min-width:576px){
+  .notif-card{left:auto;right:1.5rem;bottom:1.5rem;width:380px}
+}
