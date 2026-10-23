@@ -12,7 +12,7 @@
       <i class="bi bi-bell"></i>
       <span class="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand-600"></span>
     </button>
-    <img src="<?= e($assets) ?>/img/avatar.jpg" alt="<?= e($data['mitra']['nama']) ?>"
+    
          class="h-11 w-11 rounded-full border-2 border-brand-600 object-cover object-top">
   </div>
 </header>

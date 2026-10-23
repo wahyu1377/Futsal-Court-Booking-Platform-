@@ -55,29 +55,20 @@ require_once __DIR__ . '/../../../backend/config/google.php';
               class="bi bi-arrow-right ms-1"></i></button>
         </form>
 
-        <div class="divider">atau masuk dengan</div>
-        <button type="button" class="btn btn-google"><i class="bi bi-google me-2"></i>Google</button>
-      </div>
-<<<<<<< HEAD
-      <button type="submit" id="btnSubmit" class="btn btn-main">Masuk Sekarang <i class="bi bi-arrow-right ms-1"></i></button>
+          <div class="divider">atau masuk dengan</div>
+            <div id="googleBtn" class="d-flex justify-content-center"
+            data-api="../../../backend/api/auth/google.php"
+            data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
+            data-text="continue_with"></div>
+          </div>
+        
     </form>
-
-    <div class="divider">atau masuk dengan</div>
-    <div id="googleBtn" class="d-flex justify-content-center"
-     data-api="../../../backend/api/auth/google.php"
-     data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
-     data-text="continue_with"></div>
-  </div>
-=======
->>>>>>> d451a64e028b09339428638c8b1473508c0e58a8
-
 
       <p class="text-center mt-4 mb-2 text-secondary">Belum punya akun? <a href="register.php" class="link-green">Daftar
           Sekarang</a></p>
       <p class="text-center foot"><a href="#" class="text-reset text-decoration-none">Pusat Bantuan</a> &nbsp;•&nbsp; <a
           href="#" class="text-reset text-decoration-none">Syarat &amp; Ketentuan</a></p>
 
-<<<<<<< HEAD
 </div></main>
 
 <div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
@@ -103,11 +94,6 @@ require_once __DIR__ . '/../../../backend/config/google.php';
 <?php include __DIR__ . '/../../components/scripts.php'; ?>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-=======
-    </div>
-  </main>
-  <?php include __DIR__ . '/../../components/scripts.php'; ?>
->>>>>>> d451a64e028b09339428638c8b1473508c0e58a8
 </body>
 
 </html>
