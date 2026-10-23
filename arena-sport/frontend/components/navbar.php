@@ -20,6 +20,7 @@ $activeNav = $activeNav ?? '';
     <!-- Menu desktop -->
     <nav class="d-none d-lg-flex gap-4 me-auto ms-4">
       <a class="top-link <?= $activeNav === 'beranda' ? 'active' : '' ?>" href="beranda.php">Beranda</a>
+      <a class="top-link <?= $activeNav === 'favorit' ? 'active' : '' ?>" href="favorit.php">Favorit</a>
       <?php if ($user && $user['role'] === 'user'): ?>
         <a class="top-link <?= $activeNav === 'pesanan' ? 'active' : '' ?>" href="tiket.php">Pesanan</a>
       <?php endif; ?>
@@ -41,7 +42,7 @@ $activeNav = $activeNav ?? '';
 <!-- NAVIGASI BAWAH (hanya HP) -->
 <nav class="bottom-nav d-lg-none">
   <a href="beranda.php" class="<?= $activeNav === 'beranda' ? 'active' : '' ?>"><i class="bi bi-dribbble"></i><span>Beranda</span></a>
-  <a href="#" class="<?= $activeNav === 'favorit' ? 'active' : '' ?>"><i class="bi bi-bookmark"></i><span>Favorit</span></a>
+  <a href="<?= $user ? 'favorit.php' : '../auth/login.php' ?>" class="<?= $activeNav === 'favorit' ? 'active' : '' ?>"><i class="bi bi-bookmark"></i><span>Favorit</span></a>
   <a href="<?= $user ? 'tiket.php' : '../auth/login.php' ?>" class="<?= $activeNav === 'pesanan' ? 'active' : '' ?>"><i class="bi bi-ticket-perforated"></i><span>Pesanan</span></a>
   <a href="<?= $user ? ($user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php') : '../auth/login.php' ?>" class="<?= $activeNav === 'akun' ? 'active' : '' ?>"><i class="bi bi-person-circle"></i><span>Akun</span></a>
 </nav>

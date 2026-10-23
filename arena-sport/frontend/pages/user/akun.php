@@ -29,9 +29,12 @@ if (!$row) {   // akun sudah dihapus dari database: akhiri session
 
 // TODO: isi setelah tabel booking & favorit dibuat, contoh:
 //   SELECT COUNT(*) FROM booking WHERE user_id = ? AND status = 'aktif'
-//   SELECT COUNT(*) FROM favorit WHERE user_id = ?
 $pesananAktif = 0;
-$favorit      = 0;
+
+//   SELECT COUNT(*) FROM favorit WHERE user_id = ?
+$st = db()->prepare('SELECT COUNT(*) FROM favorit WHERE user_id = ?');
+$st->execute([(int) $_SESSION['user_id']]);
+$favorit = (int) $st->fetchColumn();
 
 // TODO: ubah jadi true kalau email sudah diverifikasi (belum ada fitur verifikasi)
 $terverifikasi = false;

@@ -115,3 +115,20 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);c
 
 .avatar{overflow:hidden;padding:0}
 .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Tombol hati (favorit) */
+.fav-btn{position:absolute;top:.7rem;right:.7rem;z-index:2;width:40px;height:40px;border:0;border-radius:50%;
+  background:rgba(255,255,255,.95);color:#0d1b2e;font-size:1.15rem;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(13,27,46,.18);transition:transform .15s,color .15s}
+.fav-btn:hover{transform:scale(1.08)}
+.fav-btn:active{transform:scale(.92)}
+.fav-btn.is-on{color:#e0245e}
+.fav-btn:focus-visible{outline:3px solid rgba(0,106,74,.5);outline-offset:2px}
+.fav-btn--static{position:static}              /* untuk dipakai di luar foto, misal halaman detail */
+.court-tags{right:3.6rem}                      /* beri ruang untuk tombol hati */
+
+/* Pesan singkat */
+.mini-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:60;background:#0d1b2e;color:#fff;
+  padding:.65rem 1.1rem;border-radius:999px;font-weight:600;font-size:.9rem;box-shadow:0 8px 20px rgba(13,27,46,.3);
+  max-width:90vw;text-align:center}
+@media (prefers-reduced-motion:reduce){.fav-btn{transition:none}}
