@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/helper_profil.php';   // e(), avatarSrc()
 $user      = $user ?? null;
 $activeNav = $activeNav ?? '';
 ?>
@@ -27,8 +28,8 @@ $activeNav = $activeNav ?? '';
     <div class="d-flex align-items-center gap-3">
       <button class="icon-btn" aria-label="Notifikasi"><i class="bi bi-bell"></i></button>
       <?php if ($user): ?>
-        <a href="<?= $user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php' ?>" class="avatar" title="<?= htmlspecialchars($user['name']) ?>">
-          <?= htmlspecialchars(mb_strtoupper(mb_substr($user['name'], 0, 1))) ?>
+        <a href="<?= $user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php' ?>" class="avatar" title="<?= e($user['name']) ?>">
+        <img src="<?= e(avatarSrc($user['name'], $user['avatar'] ?? null)) ?>" alt="Akun <?= e($user['name']) ?>">
         </a>
       <?php else: ?>
         <a href="../auth/login.php" class="btn btn-sm btn-main-sm">Masuk</a>

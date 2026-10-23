@@ -112,3 +112,6 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);c
 .filter-foot{padding:1rem 1.25rem calc(1rem + env(safe-area-inset-bottom,0px));background:#fff;border-top:1px solid var(--line)}
 .btn-reset{background:var(--field);color:var(--ink);font-weight:700;border:0;border-radius:14px;padding:.8rem 1.2rem}
 .btn-reset:hover{background:#e2e8ff}
+
+.avatar{overflow:hidden;padding:0}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}

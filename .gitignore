@@ -1,1 +1,3 @@
 backend/config/database.local.php
+frontend/assets/img/avatars/*
+!frontend/assets/img/avatars/.htaccess
