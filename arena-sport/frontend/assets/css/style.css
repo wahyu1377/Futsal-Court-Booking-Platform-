@@ -127,12 +127,18 @@ body.app small { font-size: 12px; line-height: 16px; } /* Caption 12px */
 }
 
 /* ---------- 4. Layout halaman ---------- */
+
 .page {
-  max-width: 560px;           /* HP / tablet kecil: satu kolom */
+  width: 100%;
+  max-width: 560px;           /* HP */
   margin: 0 auto;
   padding: 16px;
 }
-.page__col { display: flex; flex-direction: column; gap: 16px; }
+.page__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
 /* ---------- 5. Kartu profil ---------- */
 .card-app {
@@ -197,7 +203,7 @@ body.app small { font-size: 12px; line-height: 16px; } /* Caption 12px */
   background: var(--primary-50);
 }
 
-/* ---------- 6. Kartu poin (gradient hijau) ---------- */
+/* ---------- 6. Kartu poin (gradient hijau) ---------- 
 .points {
   position: relative;
   overflow: hidden;
@@ -207,7 +213,7 @@ body.app small { font-size: 12px; line-height: 16px; } /* Caption 12px */
   background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-500) 100%);
   box-shadow: var(--shadow-green);
 }
-/* ornamen lapangan di kanan */
+/* ornamen lapangan di kanan 
 .points::after {
   content: "";
   position: absolute;
@@ -249,7 +255,7 @@ body.app small { font-size: 12px; line-height: 16px; } /* Caption 12px */
   background: var(--primary-300);
   border-radius: var(--radius-pill);
 }
-.points__count { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.points__count { font-size: 14px; font-weight: 600; white-space: nowrap; } */
 
 /* ---------- 7. Daftar menu ---------- */
 .section-label {
@@ -357,26 +363,20 @@ body.app small { font-size: 12px; line-height: 16px; } /* Caption 12px */
   .menu__link { padding: 14px 16px; gap: 12px; }
 }
 
-/* Tablet ke atas */
+/* Tablet */
 @media (min-width: 768px) {
-  .page { padding: 24px; }
+  .page { max-width: 680px; padding: 24px; }
+  .page__stack { gap: 20px; }
   .profile { padding: 32px 28px; }
-  .profile h2 { font-size: 32px; line-height: 40px; }  /* Headline 1 */
+  .profile h2 { font-size: 32px; line-height: 40px; }
 }
 
-/* Desktop: dua kolom, logo tampil, nav melayang di tengah bawah */
+/* Desktop: tetap vertikal, dipusatkan, logo tampil, nav melayang */
 @media (min-width: 992px) {
   .app-header__logo { display: block; margin-right: 16px; }
   .app-header h1 { padding-left: 16px; border-left: 1px solid var(--neutral-200); }
 
-  .page { max-width: 1040px; padding: 32px 20px; }
-  .page__grid {
-    display: grid;
-    grid-template-columns: 380px 1fr;
-    gap: 24px;
-    align-items: start;
-  }
-  .page__aside { position: sticky; top: calc(var(--header-height) + 24px); }
+  .page { max-width: 760px; padding: 32px 20px; }
 
   .bottom-nav {
     left: 50%; right: auto; bottom: 20px;
