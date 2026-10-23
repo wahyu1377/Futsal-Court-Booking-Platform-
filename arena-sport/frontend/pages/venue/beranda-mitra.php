@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../backend/config/app.php';
 require_once __DIR__ . '/../../../backend/config/helpers.php';
-require_once __DIR__ . '/../../../backend/models/DashboardMitra.php';
+require_once __DIR__ . '/../../../backend/config/models/DashboardMitra.php';
 
 require_owner();
 

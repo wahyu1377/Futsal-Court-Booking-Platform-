@@ -1,4 +1,6 @@
 <?php
 // Titik masuk: buka http://localhost:8000 -> langsung ke dashboard owner
-header('Location: frontend/pages/venue/beranda-mitra.php');
+// Struktur aplikasi sudah disatukan ke folder arena-sport/, jadi path relatif
+// ditulis dari root repo: arena-sport/frontend/pages/venue/beranda-mitra.php
+header('Location: arena-sport/frontend/pages/venue/beranda-mitra.php');
 exit;
