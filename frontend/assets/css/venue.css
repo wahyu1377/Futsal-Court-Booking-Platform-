@@ -1,0 +1,23 @@
+/* Gaya tambahan halaman owner — hanya yang tidak praktis dibuat dengan utilitas Tailwind. */
+body.mitra {
+  background: #F3F5FA;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bootstrap dropdown disesuaikan dengan bahasa desain (sudut membulat, bayangan lembut) */
+body.mitra .dropdown-menu {
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .14);
+  font-size: 14px;
+}
+body.mitra .dropdown-item { border-radius: 10px; padding: 8px 12px; font-weight: 500; }
+body.mitra .dropdown-item:active { background: #059669; }
+
+:focus-visible { outline: 3px solid #6EE7B7; outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; scroll-behavior: auto !important; }
+}

@@ -25,7 +25,12 @@ if (!$u || !password_verify($pass, $u['password_hash'])) {
         $n = $u['failed_attempts'] + 1;
         $left = max(0, MAX_ATTEMPTS - $n);
         if ($n >= MAX_ATTEMPTS) {
-            $pdo->prepare("UPDATE $table SET failed_attempts=0, locked_until=NOW() + INTERVAL '" . LOCK_MINUTES . " minutes' WHERE id=?")->execute([$u['id']]);
+            // Hitung waktu kunci di PHP, bukan pakai NOW() + INTERVAL.
+            // Alasannya: sintaks INTERVAL hanya berlaku di MySQL, sedangkan
+            // PostgreSQL (Supabase) memakai NOW() + INTERVAL 'x minutes'.
+            $lockedUntil = date('Y-m-d H:i:s', time() + LOCK_MINUTES * 60);
+            $pdo->prepare("UPDATE $table SET failed_attempts=0, locked_until=? WHERE id=?")
+                ->execute([$lockedUntil, $u['id']]);
         } else {
             $pdo->prepare("UPDATE $table SET failed_attempts=? WHERE id=?")->execute([$n, $u['id']]);
         }

@@ -12,6 +12,15 @@ function input(): array {
     return json_decode(file_get_contents('php://input'), true) ?? [];
 }
 
+// Ambil body JSON dari request POST, PUT, atau DELETE (dipakai API CRUD)
+function inputAny(): array {
+    $metode = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if (!in_array($metode, ['POST', 'PUT', 'DELETE'], true)) {
+        respond(false, 'Metode tidak diizinkan.', [], 405);
+    }
+    return json_decode(file_get_contents('php://input'), true) ?? [];
+}
+
 // Pisahkan input menjadi ['email', nilai] atau ['phone', nilai]
 function parseIdentifier(string $id): array {
     $id = trim($id);

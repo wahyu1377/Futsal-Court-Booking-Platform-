@@ -42,7 +42,9 @@ if ($hanyaFavorit) {
 if ($jenis !== '') { $where[] = 'jenis = ?'; $params[] = $jenis; }
 
 if ($q !== '') {
-    $where[] = '(nama ILIKE ? OR jenis ILIKE ? OR kecamatan ILIKE ? OR kota ILIKE ?)';
+    // LOWER(col) LIKE LOWER(?) dipakai sebagai pengganti ILIKE.
+    // ILIKE hanya ada di PostgreSQL, sedangkan versi ini jalan di MySQL maupun PostgreSQL.
+    $where[] = '(LOWER(nama) LIKE LOWER(?) OR LOWER(jenis) LIKE LOWER(?) OR LOWER(kecamatan) LIKE LOWER(?) OR LOWER(kota) LIKE LOWER(?))';
     $like = '%' . $q . '%';
     array_push($params, $like, $like, $like, $like);
 }
@@ -53,7 +55,10 @@ if ($tersedia)          { $where[] = 'tersedia_hari_ini = TRUE'; }
 
 // Semua fasilitas yang dipilih harus dimiliki lapangan
 foreach ($fasilitas as $fas) {
-    $where[]  = "CONCAT(',', REPLACE(fasilitas, ', ', ','), ',') ILIKE ?";
+    // Semua fasilitas yang dipilih harus dimiliki lapangan.
+    // LOWER() dipakai di sisi kolom juga, supaya cocok case-insensitive di PostgreSQL
+    // (LIKE di PostgreSQL bersifat case-sensitive, berbeda dari MySQL).
+    $where[]  = "LOWER(CONCAT(',', REPLACE(fasilitas, ', ', ','), ',')) LIKE LOWER(?)";
     $params[] = '%,' . addcslashes($fas, '%_\\') . ',%';
 }
 
