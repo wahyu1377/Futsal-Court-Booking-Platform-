@@ -55,7 +55,7 @@ function tren(int|float $n, string $akhiran = ''): string
     </section>
 
     <!-- CTA -->
-    <a href="tambah-lapangan.php"
+    <a href="../owner/tambah_lapangan.php"
        class="flex items-center justify-center gap-3 rounded-2xl bg-brand-800 px-4 py-5 text-xl font-bold text-white shadow-[0_8px_20px_rgba(6,95,70,.25)] transition hover:brightness-110">
       <i class="bi bi-plus-circle text-2xl"></i> Tambah Lapangan Baru
     </a>

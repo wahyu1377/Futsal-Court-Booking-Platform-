@@ -50,12 +50,14 @@ require_once __DIR__ . '/../../../backend/config/google.php';
         <label class="form-label" for="full_name">Nama Lengkap</label>
         <div class="input-icon"><i class="bi bi-person lead"></i>
           <input type="text" id="full_name" class="form-control" placeholder="Bambang Pamungkas" autocomplete="name" maxlength="50">
+        </div>
         <div class="invalid-feedback"></div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="identifier">Email atau Nomor HP</label>
         <div class="input-icon"><i class="bi bi-envelope lead"></i>
           <input type="text" id="identifier" class="form-control" placeholder="atlet@arenasport.id atau 081234567890" autocomplete="username" inputmode="email">
+        </div>
         <div class="invalid-feedback"></div>
       </div>
       <div class="mb-3">
