@@ -55,21 +55,20 @@ require_once __DIR__ . '/../../../backend/config/google.php';
               class="bi bi-arrow-right ms-1"></i></button>
         </form>
 
-          <div class="divider">atau masuk dengan</div>
-            <div id="googleBtn" class="d-flex justify-content-center"
-            data-api="../../../backend/api/auth/google.php"
-            data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
-            data-text="continue_with"></div>
-          </div>
-        
-    </form>
+        <div class="divider">atau masuk dengan</div>
+        <div id="googleBtn" class="d-flex justify-content-center"
+             data-api="../../../backend/api/auth/google.php"
+             data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
+             data-text="continue_with"></div>
+      </div><!-- /auth-card -->
 
       <p class="text-center mt-4 mb-2 text-secondary">Belum punya akun? <a href="register.php" class="link-green">Daftar
           Sekarang</a></p>
       <p class="text-center foot"><a href="#" class="text-reset text-decoration-none">Pusat Bantuan</a> &nbsp;•&nbsp; <a
           href="#" class="text-reset text-decoration-none">Syarat &amp; Ketentuan</a></p>
 
-</div></main>
+    </div><!-- /auth-box -->
+  </main>
 
 <div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

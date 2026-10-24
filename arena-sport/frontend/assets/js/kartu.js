@@ -5,11 +5,19 @@ const rupiah = n => 'Rp' + Number(n).toLocaleString('id-ID');
 
 function renderCard(c, IMG, DETAIL) {
   const tags = [cap(c.jenis), ...(c.fasilitas ? c.fasilitas.split(',').map(t => t.trim()).filter(Boolean) : [])].slice(0, 3);
-  const foto = c.foto ? `<img src="${esc(IMG + c.foto)}" alt="${esc(c.nama)}" loading="lazy" onerror="this.remove()">` : '';
+  // Foto pada database boleh lebih dari satu (dipisah koma), yang dipakai adalah foto utama
+  const fotoUtama = String(c.foto || '').split(',').map(s => s.trim()).filter(Boolean)[0] || '';
+  // Foto bisa file di folder aset atau URL dari internet
+  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + nama;
+  const foto = fotoUtama ? `<img src="${esc(urlFoto(fotoUtama))}" alt="${esc(c.nama)}" loading="lazy" onerror="this.remove()">` : '';
   const avail = c.tersedia_hari_ini == 1
     ? '<span class="avail">Tersedia Hari Ini</span>'
     : '<span class="avail off">Penuh Hari Ini</span>';
   const fav = !!c.favorit;
+  // Rating baru tampil kalau sudah ada nilai dari pelanggan
+  const rating = Number(c.rating) > 0
+    ? `<div class="court-rating"><i class="bi bi-star-fill"></i> ${Number(c.rating).toFixed(1)} <small>(${Number(c.jumlah_ulasan)})</small></div>`
+    : '';
   return `
   <div class="col-12 col-md-6 col-xl-4">
     <article class="court-card">
@@ -20,7 +28,7 @@ function renderCard(c, IMG, DETAIL) {
           <i class="bi ${fav ? 'bi-heart-fill' : 'bi-heart'}"></i>
         </button>
         <div class="court-tags">${tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>
-        <div class="court-rating"><i class="bi bi-star-fill"></i> ${Number(c.rating).toFixed(1)} <small>(${Number(c.jumlah_ulasan)})</small></div>
+        ${rating}
       </div>
       <div class="court-body">
         <h3>${esc(c.nama)}</h3>
