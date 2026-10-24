@@ -69,7 +69,8 @@ function tren(int|float $n, string $akhiran = ''): string
       <i class="bi bi-plus-circle text-2xl"></i> Tambah Lapangan Baru
     </a>
 
-    <!-- Ringkasan -->
+    <!-- Ringkasan: disembunyikan kalau tabel reservasi belum ada (semua nilai 0) -->
+    <?php if ($r['pesanan_hari_ini'] > 0 || $r['menunggu_bayar'] > 0 || $r['pendapatan_bulan'] > 0): ?>
     <section class="grid grid-cols-3 gap-3" aria-label="Ringkasan hari ini">
       <article class="rounded-2xl bg-white p-3 shadow-card sm:p-5">
         <div class="flex items-start justify-between gap-1">
@@ -104,6 +105,7 @@ function tren(int|float $n, string $akhiran = ''): string
         </span>
       </article>
     </section>
+    <?php endif; ?>
 
     <!-- Reservasi terkini (disembunyikan kalau belum ada data reservasi) -->
     <?php if (!empty($data['reservasi_terkini'])): ?>
