@@ -3,7 +3,7 @@ require __DIR__ . '/../../../backend/core/auth.php';
 $user = currentUser();            // null kalau tamu
 $pageTitle = 'Beranda';
 $activeNav = 'beranda';
-$extraJs   = '../../assets/js/beranda.js';
+$extraJs   = ['../../assets/js/kartu.js', '../../assets/js/fav-toggle.js', '../../assets/js/beranda.js'];
 ?>
 <?php include '../../components/header.php'; ?>
 <?php include '../../components/navbar.php'; ?>

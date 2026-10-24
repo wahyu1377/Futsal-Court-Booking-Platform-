@@ -1,4 +1,7 @@
-<?php $pageTitle = 'Masuk'; ?>
+<?php $pageTitle = 'Masuk'; 
+require_once __DIR__ . '/../../../backend/config/google.php';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -53,18 +56,43 @@
         </form>
 
         <div class="divider">atau masuk dengan</div>
-        <button type="button" class="btn btn-google"><i class="bi bi-google me-2"></i>Google</button>
-      </div>
-
+        <div id="googleBtn" class="d-flex justify-content-center"
+             data-api="../../../backend/api/auth/google.php"
+             data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
+             data-text="continue_with"></div>
+      </div><!-- /auth-card -->
 
       <p class="text-center mt-4 mb-2 text-secondary">Belum punya akun? <a href="register.php" class="link-green">Daftar
           Sekarang</a></p>
       <p class="text-center foot"><a href="#" class="text-reset text-decoration-none">Pusat Bantuan</a> &nbsp;•&nbsp; <a
           href="#" class="text-reset text-decoration-none">Syarat &amp; Ketentuan</a></p>
 
-    </div>
+    </div><!-- /auth-box -->
   </main>
-  <?php include __DIR__ . '/../../components/scripts.php'; ?>
+
+<div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:20px">
+      <div class="modal-body p-4">
+        <h5 class="fw-bold mb-1">Akun Google belum terdaftar</h5>
+        <p class="text-secondary">Kamu ingin mendaftar sebagai apa?</p>
+        <div class="d-grid gap-2">
+          <button type="button" class="role-card text-start border-0 w-100" data-role-pick="user">
+            <i class="bi bi-person-check"></i><strong>Pengguna</strong><small>Cari &amp; booking lapangan</small>
+          </button>
+          <button type="button" class="role-card text-start border-0 w-100" data-role-pick="owner">
+            <i class="bi bi-building"></i><strong>Owner Lapangan</strong><small>Sewakan &amp; kelola lapangan</small>
+          </button>
+        </div>
+        <p class="small text-secondary mt-3 mb-0">Dengan melanjutkan, kamu menyetujui Syarat &amp; Ketentuan dan Kebijakan Privasi Arena Sport.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<?php include __DIR__ . '/../../components/scripts.php'; ?>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </body>
 
 </html>

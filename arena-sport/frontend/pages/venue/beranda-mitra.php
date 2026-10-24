@@ -2,13 +2,22 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../backend/config/app.php';
+// requireLogin() + currentUser() + session: satu mekanisme auth untuk semua halaman owner
+require_once __DIR__ . '/../../../backend/core/auth.php';
 require_once __DIR__ . '/../../../backend/config/helpers.php';
-require_once __DIR__ . '/../../../backend/models/DashboardMitra.php';
+require_once __DIR__ . '/../../../backend/config/models/DashboardMitra.php';
 
-require_owner();
+requireLogin('owner');
 
+$user    = currentUser();
 $mitraId = (int) ($_SESSION['user_id'] ?? 0);
 $data    = DashboardMitra::ambil($mitraId);
+
+// Nama mitra diambil dari session (sumber yang sama dengan halaman owner lain),
+// supaya tetap tampil walau query database tidak mengembalikan akun.
+if (!empty($user['name'])) {
+    $data['mitra']['nama'] = $user['name'];
+}
 
 $assets       = '../../assets';   // dari frontend/pages/venue/ ke frontend/assets/
 $halamanAktif = 'beranda';
@@ -55,12 +64,13 @@ function tren(int|float $n, string $akhiran = ''): string
     </section>
 
     <!-- CTA -->
-    <a href="tambah-lapangan.php"
+    <a href="../owner/tambah_lapangan.php"
        class="flex items-center justify-center gap-3 rounded-2xl bg-brand-800 px-4 py-5 text-xl font-bold text-white shadow-[0_8px_20px_rgba(6,95,70,.25)] transition hover:brightness-110">
       <i class="bi bi-plus-circle text-2xl"></i> Tambah Lapangan Baru
     </a>
 
-    <!-- Ringkasan -->
+    <!-- Ringkasan: disembunyikan kalau tabel reservasi belum ada (semua nilai 0) -->
+    <?php if ($r['pesanan_hari_ini'] > 0 || $r['menunggu_bayar'] > 0 || $r['pendapatan_bulan'] > 0): ?>
     <section class="grid grid-cols-3 gap-3" aria-label="Ringkasan hari ini">
       <article class="rounded-2xl bg-white p-3 shadow-card sm:p-5">
         <div class="flex items-start justify-between gap-1">
@@ -95,8 +105,10 @@ function tren(int|float $n, string $akhiran = ''): string
         </span>
       </article>
     </section>
+    <?php endif; ?>
 
-    <!-- Reservasi terkini -->
+    <!-- Reservasi terkini (disembunyikan kalau belum ada data reservasi) -->
+    <?php if (!empty($data['reservasi_terkini'])): ?>
     <section class="flex gap-4 rounded-3xl bg-tint p-4 shadow-card" aria-label="Reservasi terkini">
       <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white/70 text-2xl text-brand-700"><i class="bi bi-bell"></i></span>
       <div class="min-w-0 flex-1">
@@ -114,6 +126,7 @@ function tren(int|float $n, string $akhiran = ''): string
         </div>
       </div>
     </section>
+    <?php endif; ?>
 
     <!-- Daftar lapangan -->
     <section aria-labelledby="judul-lapangan">
@@ -127,10 +140,16 @@ function tren(int|float $n, string $akhiran = ''): string
 
       <div class="grid gap-5 md:grid-cols-2">
         <?php foreach ($data['lapangan'] as $l):
-            $buka = $l['slot_tersedia'] > 0; ?>
+            $buka = $l['slot_tersedia'] > 0;
+            // Foto dari internet dipakai apa adanya, foto dari aset diberi prefix folder img/
+            $fotoUrl = preg_match('#^https?://#i', $l['foto'])
+                ? $l['foto']
+                : $assets . '/img/' . $l['foto']; ?>
           <article class="rounded-3xl bg-white shadow-card">
             <div class="relative overflow-hidden rounded-t-3xl">
-              <img src="<?= e($assets) ?>/img/<?= e($l['foto']) ?>" alt="Foto <?= e($l['nama']) ?>" class="block aspect-[2/1] w-full object-cover">
+              <?php if ($l['foto'] !== ''): ?>
+                <img src="<?= e($fotoUrl) ?>" alt="Foto <?= e($l['nama']) ?>" class="block aspect-[2/1] w-full object-cover" loading="lazy" onerror="this.remove()">
+              <?php endif; ?>
               <span class="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-sm font-semibold text-ink shadow-sm">
                 <i class="bi <?= e($l['ikon']) ?> text-brand-700"></i> <?= e($l['jenis']) ?> • <?= e($l['tipe']) ?>
               </span>

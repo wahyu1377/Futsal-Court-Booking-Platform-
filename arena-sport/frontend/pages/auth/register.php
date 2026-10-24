@@ -1,4 +1,7 @@
-<?php $pageTitle = 'Daftar'; ?>
+<?php $pageTitle = 'Daftar'; 
+require_once __DIR__ . '/../../../backend/config/google.php';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head><?php include __DIR__ . '/../../components/head.php'; ?></head>
@@ -47,12 +50,14 @@
         <label class="form-label" for="full_name">Nama Lengkap</label>
         <div class="input-icon"><i class="bi bi-person lead"></i>
           <input type="text" id="full_name" class="form-control" placeholder="Bambang Pamungkas" autocomplete="name" maxlength="50">
+        </div>
         <div class="invalid-feedback"></div>
       </div>
       <div class="mb-3">
         <label class="form-label" for="identifier">Email atau Nomor HP</label>
         <div class="input-icon"><i class="bi bi-envelope lead"></i>
           <input type="text" id="identifier" class="form-control" placeholder="atlet@arenasport.id atau 081234567890" autocomplete="username" inputmode="email">
+        </div>
         <div class="invalid-feedback"></div>
       </div>
       <div class="mb-3">
@@ -77,12 +82,16 @@
     </form>
 
     <div class="divider">atau daftar lebih cepat dengan</div>
-    <button type="button" class="btn btn-google"><i class="bi bi-google me-2"></i>Google</button>
+   <div id="googleBtn" class="d-flex justify-content-center"
+     data-api="../../../backend/api/auth/google.php"
+     data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
+     signup_with="continue_with"></div>
   </div>
 
   <p class="text-center mt-4 mb-2 text-secondary">Sudah punya akun? <a href="login.php" class="link-green">Masuk di sini</a></p>
 
 </div></main>
 <?php include __DIR__ . '/../../components/scripts.php'; ?>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </body>
 </html>

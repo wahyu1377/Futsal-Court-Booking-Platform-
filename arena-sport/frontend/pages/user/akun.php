@@ -1,34 +1,54 @@
 <?php
 declare(strict_types=1);
-session_start();
 
-/* ---------------------------------------------------------
-   DATA — sementara hardcode. Ganti dengan query database
-   (PDO + prepared statement) berdasarkan $_SESSION['user_id'].
-   --------------------------------------------------------- */
-$user = [
-    'nama'          => 'Bambang Pamungkas',
-    'email'         => 'bambang.p@gmail.com',
-    'telepon'       => '0812-3456-7890',
-    'avatar'        => 'img/avatar.jpg',
-    'tier'          => 'Silver',
-    'poin'          => 120,
-    'target_poin'   => 150,
-    'pesanan_aktif' => 2,
-    'favorit'       => 3,
-];
+require __DIR__ . '/../../../backend/core/auth.php';
+require_once __DIR__ . '/../../components/helper_profil.php';   // e(), avatarSrc(), punyaAvatar()
+requireLogin('user');   // wajib login; owner otomatis diarahkan ke dashboard-nya
 
-// Helper escape output (cegah XSS)
-function e(string|int $v): string
+// 08123456789012 -> 0812-3456-7890
+function formatTelepon(?string $hp): ?string
 {
-    return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+    if ($hp === null || $hp === '') return null;
+    return rtrim(chunk_split($hp, 4, '-'), '-');
 }
 
-// Hitung progress poin
-$sisaPoin = max(0, $user['target_poin'] - $user['poin']);
-$persen   = $user['target_poin'] > 0
-    ? min(100, (int) round($user['poin'] / $user['target_poin'] * 100))
-    : 0;
+/* ---------------------------------------------------------
+   DATA PROFIL dari database, berdasarkan akun yang login
+   --------------------------------------------------------- */
+$st = db()->prepare('SELECT full_name, email, phone, avatar FROM users WHERE id = ?');
+$st->execute([(int) $_SESSION['user_id']]);
+$row = $st->fetch();
+
+if (!$row) {   // akun sudah dihapus dari database: akhiri session
+    $_SESSION = [];
+    session_destroy();
+    header('Location: ../auth/login.php');
+    exit;
+}
+
+
+// TODO: isi setelah tabel booking & favorit dibuat, contoh:
+//   SELECT COUNT(*) FROM booking WHERE user_id = ? AND status = 'aktif'
+$pesananAktif = 0;
+
+//   SELECT COUNT(*) FROM favorit WHERE user_id = ?
+$st = db()->prepare('SELECT COUNT(*) FROM favorit WHERE user_id = ?');
+$st->execute([(int) $_SESSION['user_id']]);
+$favorit = (int) $st->fetchColumn();
+
+// TODO: ubah jadi true kalau email sudah diverifikasi (belum ada fitur verifikasi)
+$terverifikasi = false;
+
+$kontak = array_filter([$row['email'], formatTelepon($row['phone'])]);
+
+$user = [
+    'nama'          => (string) $row['full_name'],
+    'kontak'        => $kontak ? implode(' • ', $kontak) : 'Belum ada kontak',
+    'avatar'        => avatarSrc((string) $row['full_name'], $row['avatar']),
+    'pesanan_aktif' => $pesananAktif,
+    'favorit'       => $favorit,
+];
+
 
 // Menu: tiap item = [ikon, warna tint, judul, deskripsi, link, badge]
 $menuAktivitas = [
@@ -96,58 +116,39 @@ function renderMenu(array $items, string $extraClass = ''): void
     <button type="button" class="icon-btn" aria-label="Notifikasi">
       <i class="bi bi-bell"></i><span class="dot"></span>
     </button>
-    <img class="avatar-sm" src="../../assets/img/avatar.jpg" alt="">
+    <img class="avatar-sm" src="<?= e($user['avatar']) ?>" alt="">
   </div>
 </header>
 
 <main class="page">
-  <div class="page__grid">
+  <div class="page__stack">
 
-    <!-- Kolom kiri: profil + poin -->
-    <div class="page__aside page__col">
-      <section class="card-app profile">
-        <div class="profile__avatar-wrap">
-          <img class="profile__avatar" src="../../assets/img/avatar.jpg" alt="<?= e($user['nama']) ?>">
+    <section class="card-app profile">
+      <div class="profile__avatar-wrap">
+        <img class="profile__avatar" src="<?= e($user['avatar']) ?>" alt="<?= e($user['nama']) ?>">
+        <?php if ($terverifikasi): ?>
           <span class="profile__verified" title="Akun terverifikasi"><i class="bi bi-patch-check-fill"></i></span>
-        </div>
-        <h2><?= e($user['nama']) ?></h2>
-        <p class="profile__contact"><?= e($user['email']) ?> • <?= e($user['telepon']) ?></p>
-        <a href="edit-profil.php" class="btn-outline-pill"><i class="bi bi-pencil"></i> Edit Profil</a>
-      </section>
+        <?php endif; ?>
+      </div>
+      <h2><?= e($user['nama']) ?></h2>
+      <p class="profile__contact"><?= e($user['kontak']) ?></p>
+      <a href="edit-profil.php" class="btn-outline-pill"><i class="bi bi-pencil"></i> Edit Profil</a>
+    </section>
 
-      <section class="points">
-        <small class="points__tier">TIER ATLET <?= e(strtoupper($user['tier'])) ?></small>
-        <h2>Arena Points Anda: <?= e($user['poin']) ?> Poin</h2>
-        <p><?= $sisaPoin > 0
-            ? 'Kumpulkan ' . e($sisaPoin) . ' poin lagi untuk klaim 1 jam main gratis!'
-            : 'Selamat! Anda bisa klaim 1 jam main gratis.' ?></p>
-        <div class="points__bar">
-          <div class="points__track" role="progressbar" aria-valuenow="<?= e($user['poin']) ?>"
-               aria-valuemin="0" aria-valuemax="<?= e($user['target_poin']) ?>">
-            <div class="points__fill" style="width: <?= e($persen) ?>%"></div>
-          </div>
-          <span class="points__count"><i class="bi bi-trophy-fill"></i> <?= e($user['poin']) ?> / <?= e($user['target_poin']) ?> pts</span>
-        </div>
-      </section>
-    </div>
+    <h3 class="section-label">Aktivitas Saya</h3>
+    <?php renderMenu($menuAktivitas); ?>
 
-    <!-- Kolom kanan: menu -->
-    <div class="page__col">
-      <h3 class="section-label">Aktivitas Saya</h3>
-      <?php renderMenu($menuAktivitas); ?>
+    <h3 class="section-label">Pengaturan &amp; Bantuan</h3>
+    <?php renderMenu($menuPengaturan); ?>
+    <?php renderMenu($menuBantuan, 'menu--flat'); ?>
 
-      <h3 class="section-label">Pengaturan &amp; Bantuan</h3>
-      <?php renderMenu($menuPengaturan); ?>
-      <?php renderMenu($menuBantuan, 'menu--flat'); ?>
+    <form action="../auth/logout.php" method="post">
+      <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Keluar dari Akun</button>
+    </form>
 
-      <form action="logout.php" method="post">
-        <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-right"></i> Keluar dari Akun</button>
-      </form>
-
-      <footer class="app-footer">
-        <small>Arena Sport App v2.4.1 (Build <?= date('Y') ?>)<br><em>Satu sentuhan menuju lapangan juara.</em></small>
-      </footer>
-    </div>
+    <footer class="app-footer">
+      <small>Arena Sport App v2.4.1 (Build <?= date('Y') ?>)<br><em>Satu sentuhan menuju lapangan juara.</em></small>
+    </footer>
 
   </div>
 </main>

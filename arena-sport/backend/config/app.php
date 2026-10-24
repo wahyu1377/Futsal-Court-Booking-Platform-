@@ -5,4 +5,4 @@
  * 'production' -> cek login owner WAJIB (lihat require_owner() di helpers.php).
  * WAJIB diganti ke 'production' sebelum deploy / sebelum dinilai.
  */
-define('APP_ENV', 'local');
+define('APP_ENV', 'production');

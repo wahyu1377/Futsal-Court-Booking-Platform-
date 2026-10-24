@@ -3,6 +3,10 @@
 .env.local
 arena-sport/backend/config/database.local.php
 
+# Foto profil pengguna (diunggah lewat Edit Profil); .htaccess pelindungnya tetap ikut
+arena-sport/frontend/assets/img/avatars/*
+!arena-sport/frontend/assets/img/avatars/.htaccess
+
 # Foto lapangan yang diunggah owner (jangan ikut di-commit)
 arena-sport/frontend/assets/img/lapangan/owner/
 

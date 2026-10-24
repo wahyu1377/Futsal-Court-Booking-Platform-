@@ -2,6 +2,12 @@
 require __DIR__ . '/../../config/database.php';
 require __DIR__ . '/../../core/response.php';
 
+require __DIR__ . '/../../core/auth.php';   // untuk tahu siapa yang login
+
+// id pengguna yang login (0 = tamu atau owner). Sudah di-cast ke int, aman dipakai langsung di SQL
+$uid = (isLoggedIn() && ($_SESSION['role'] ?? '') === 'user') ? (int)$_SESSION['user_id'] : 0;
+$hanyaFavorit = ($_GET['favorit'] ?? '') === '1';
+
 $jenis     = strtolower(trim($_GET['jenis'] ?? ''));
 $q         = trim($_GET['q'] ?? '');
 $minHarga  = ($_GET['min_harga'] ?? '') !== '' ? max(0, (int)$_GET['min_harga']) : null;
@@ -19,8 +25,19 @@ $urutan = [
 ];
 $orderBy = $urutan[$_GET['urut'] ?? 'rating'] ?? $urutan['rating'];
 
+// Mode halaman Favorit: terakhir disimpan tampil paling atas
+if ($hanyaFavorit && !isset($_GET['urut'])) {
+    $orderBy = "(SELECT f.created_at FROM favorit f WHERE f.lapangan_id = lapangan.id AND f.user_id = $uid) DESC NULLS LAST";
+}
+
 $where  = ['aktif = TRUE'];
 $params = [];
+
+if ($hanyaFavorit) {
+    $where[] = $uid > 0
+        ? "EXISTS (SELECT 1 FROM favorit f WHERE f.lapangan_id = lapangan.id AND f.user_id = $uid)"
+        : 'FALSE';   // tamu atau owner: tidak ada favorit
+}
 
 if ($jenis !== '') { $where[] = 'jenis = ?'; $params[] = $jenis; }
 
@@ -48,7 +65,8 @@ foreach ($fasilitas as $fas) {
 $pdo = db();
 $st = $pdo->prepare(
     "SELECT id, nama, jenis, kecamatan, kota, harga_per_jam, rating, jumlah_ulasan,
-            foto, fasilitas, keterangan, tersedia_hari_ini
+            foto, fasilitas, keterangan, tersedia_hari_ini,
+            EXISTS (SELECT 1 FROM favorit f WHERE f.lapangan_id = lapangan.id AND f.user_id = $uid) AS favorit
      FROM lapangan WHERE " . implode(' AND ', $where) . "
      ORDER BY $orderBy LIMIT 30"
 );

@@ -11,6 +11,10 @@ $pdo = db();
 [$u, $role] = findAccount($pdo, $type, $value);   // $role = 'user' atau 'owner'
 $table = $role ? tableFor($role) : null;
 
+if ($u && empty($u['password_hash'])) {
+    respond(false, 'Akun ini terdaftar lewat Google. Silakan masuk dengan tombol Google.', [], 403);
+}
+
 if ($u && $u['locked_until'] && strtotime($u['locked_until']) > time()) {
     respond(false, 'Akun diamankan sementara. Coba lagi dalam ' . LOCK_MINUTES . ' menit.', ['locked' => true], 423);
 }
