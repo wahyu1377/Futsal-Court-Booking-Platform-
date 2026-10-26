@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../../../backend/core/auth.php';
+require_once __DIR__ . '/../../../backend/core/booking.php';
 require_once __DIR__ . '/../../components/helper_profil.php';   // e(), avatarSrc(), punyaAvatar()
 requireLogin('user');   // wajib login; owner otomatis diarahkan ke dashboard-nya
 
@@ -29,7 +30,7 @@ if (!$row) {   // akun sudah dihapus dari database: akhiri session
 
 // TODO: isi setelah tabel booking & favorit dibuat, contoh:
 //   SELECT COUNT(*) FROM booking WHERE user_id = ? AND status = 'aktif'
-$pesananAktif = 0;
+$pesananAktif = hitungBookingAktif(db(), (int) $_SESSION['user_id']);
 
 //   SELECT COUNT(*) FROM favorit WHERE user_id = ?
 $st = db()->prepare('SELECT COUNT(*) FROM favorit WHERE user_id = ?');

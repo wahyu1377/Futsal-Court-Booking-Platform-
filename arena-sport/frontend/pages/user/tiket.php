@@ -1,204 +1,215 @@
 <?php
-declare(strict_types=1);
-session_start();
+/**
+ * Halaman Pesanan - Arena Sport
+ * Path: frontend/pages/user/tiket.php
+ *
+ *   tiket.php               -> daftar pesanan (tab Aktif / Riwayat)
+ *   tiket.php?kode=BKG-XXXX -> detail satu tiket
+ */
+require __DIR__ . '/../../../backend/core/auth.php';
+require_once __DIR__ . '/../../../backend/core/booking.php';
 
-/* ---------------------------------------------------------
-   DATA — sementara hardcode. Ganti dengan query database
-   berdasarkan kode reservasi (mis. tiket.php?kode=BK-...),
-   dan pastikan reservasi itu milik user yang sedang login.
-   --------------------------------------------------------- */
-$user = ['avatar' => 'img/avatar.jpg'];
+requireLogin('user');
+$user = currentUser();
+$pdo  = db();
+bersihkanKedaluwarsa($pdo);
 
-$tiket = [
-    'kode'       => 'BK-20241022-8849',
-    'status'     => 'Instant Confirmed',
-    'metode'     => 'QRIS',
-    'qr'         => 'img/qr.png',
-    'venue'      => 'Mega Futsal & Mini Soccer',
-    'alamat'     => 'Jl. TB Simatupang No. 18, Jakarta Selatan',
-    'tanggal'    => 'Selasa, 22 Okt 2024',
-    'jam'        => '19.00 - 21.00 WIB (2 Jam)',
-    'penyewa'    => 'Bambang Pamungkas',
-    'tim'        => 'Garuda FC',
-    'total'      => 392000,
-    'fasilitas'  => ['img' => 'img/fasilitas.jpg',
-                     'teks' => 'Fasilitas Pro: Ruang Ganti Ber-AC, Shower Air Hangat & Loker Digital'],
-    'jarak'      => '2.4 km',
-    'trafik'     => 'Trafik Lancar (6 Menit)',
-    'patokan'    => 'Dekat Stasiun MRT Fatmawati',
-    'pdf'        => 'img/tiket.pdf',
-];
+$pageTitle = 'Pesanan';
+$activeNav = 'pesanan';
 
-// Instruksi (HTML kecil hanya dari kode kita sendiri, bukan input user)
-$instruksi = [
-    'Hadir minimal <strong>15 menit</strong> sebelum kick-off untuk proses registrasi ulang dan pemanasan tim.',
-    'Wajib mengenakan <strong>sepatu olahraga sol karet datar (non-marking)</strong> khusus lapangan vinyl indoor.',
-    'Tunjukkan QR tiket di atas kepada staf resepsionis lobi untuk pembagian kunci ruang ganti.',
-];
+$kode   = is_string($_GET['kode'] ?? null) ? strtoupper(trim($_GET['kode'])) : '';
+$detail = null;
+$slotDetail = [];
 
-function e(string|int $v): string
-{
-    return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+if ($kode !== '') {
+    $detail = ambilBooking($pdo, $kode, (int) $user['id']);
+
+    // Cadangan bila notifikasi DOKU belum sampai (mis. dites di localhost): tanyakan statusnya ke DOKU
+    if ($detail && $detail['status_tampil'] === 'menunggu' && !empty($detail['payment_url'])) {
+        require_once __DIR__ . '/../../../backend/core/doku.php';
+        if (sinkronStatusDoku($pdo, $detail)) {
+            $detail = ambilBooking($pdo, $kode, (int) $user['id']);
+        }
+    }
+
+    if (!$detail) {
+        http_response_code(404);
+    } else {
+        $slotDetail = slotBooking($pdo, (int) $detail['id']);
+    }
+} else {
+    $semua    = daftarBooking($pdo, (int) $user['id']);
+    $tab      = ($_GET['tab'] ?? '') === 'riwayat' ? 'riwayat' : 'aktif';
+    $aktif    = array_values(array_filter($semua, fn($b) => in_array($b['status_tampil'], ['menunggu', 'dibayar'], true)));
+    $riwayat  = array_values(array_filter($semua, fn($b) => !in_array($b['status_tampil'], ['menunggu', 'dibayar'], true)));
+    // Yang akan datang paling dekat tampil paling atas
+    usort($aktif, fn($a, $b) => [$a['tanggal'], $a['jam_mulai']] <=> [$b['tanggal'], $b['jam_mulai']]);
+    $tampil   = $tab === 'riwayat' ? $riwayat : $aktif;
 }
-function rupiah(int $n): string
-{
-    return 'Rp ' . number_format($n, 0, ',', '.');
-}
-
-$query    = rawurlencode($tiket['alamat']);
-$mapEmbed = 'https://www.google.com/maps?q=' . $query . '&output=embed';
-$mapLink  = 'https://maps.google.com/?q=' . $query;
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tiket Reservasi - Arena Sport</title>
+<?php include '../../components/header.php'; ?>
+<style>
+    .tk-wrap{max-width:640px;margin:0 auto}
+    .tk-tabs{display:flex;gap:.5rem;margin-bottom:1rem}
+    .tk-tab{flex:1;text-align:center;padding:.65rem;border-radius:14px;background:#fff;color:#5f6b7a;font-weight:700;text-decoration:none}
+    .tk-tab.on{background:#006a4a;color:#fff}
+    .tk-tab small{opacity:.8;font-weight:600}
+    .tk-card{display:block;background:#fff;border-radius:20px;padding:1rem 1.1rem;margin-bottom:.8rem;color:#0d1b2e;
+        text-decoration:none;box-shadow:0 6px 18px rgba(13,27,46,.07)}
+    .tk-card:hover{color:#0d1b2e;box-shadow:0 8px 22px rgba(13,27,46,.12)}
+    .tk-badge{display:inline-block;border-radius:999px;padding:.2rem .7rem;font-size:.75rem;font-weight:800;white-space:nowrap}
+    .tone-hijau{background:#d8f5e6;color:#005239}
+    .tone-kuning{background:#fff1cc;color:#8a5a00}
+    .tone-merah{background:#ffd9d6;color:#b3141b}
+    .tone-abu{background:#eceff6;color:#5f6b7a}
+    .tk-meta{color:#5f6b7a;font-size:.9rem}
+    .tk-ticket{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(13,27,46,.1)}
+    .tk-head{background:linear-gradient(135deg,#0a2a2a,#0b3d33);color:#fff;padding:1.4rem}
+    .tk-kode{font-size:1.6rem;font-weight:800;letter-spacing:.08em}
+    .tk-body{padding:1.2rem 1.4rem}
+    .tk-row{display:flex;justify-content:space-between;gap:1rem;padding:.35rem 0;font-size:.92rem}
+    .tk-row span:first-child{color:#5f6b7a}
+    .tk-row span:last-child{font-weight:700;text-align:right}
+    .tk-sep{border-top:2px dashed #dfe5f3;margin:.9rem 0}
+    .tk-slot{display:inline-block;background:#eef2ff;border-radius:10px;padding:.2rem .6rem;font-size:.82rem;font-weight:700;margin:0 .3rem .3rem 0}
+    .tk-empty{text-align:center;color:#5f6b7a;padding:3rem 1rem}
+    #tkPesan{display:none}
+</style>
+<?php include '../../components/navbar.php'; ?>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="../../assets/css/style.css" rel="stylesheet">
-  <link href="../../assets/css/tiket.css" rel="stylesheet">
-</head>
-<body class="app tiket">
+<main class="container py-3 tk-wrap">
 
-<header class="app-header app-header--ticket">
-  <div class="app-header__inner">
-    <a class="icon-btn" href="akun.php" aria-label="Kembali"><i class="bi bi-arrow-left"></i></a>
-    <img class="app-header__logo" src="../../assets/img/logo.png" alt="Arena Sport">
-    <h1>Tiket Reservasi / Sukses</h1>
-    <button type="button" class="icon-btn" aria-label="Simpan"><i class="bi bi-bookmark"></i></button>
-    <img class="avatar-sm" src="../../assets/img/avatar.jpg" alt="">
-  </div>
-</header>
+<?php if ($kode !== ''): ?>
+    <!-- ================= DETAIL TIKET ================= -->
+    <a href="tiket.php" class="link-green d-inline-block mb-3"><i class="bi bi-arrow-left"></i> Semua Pesanan</a>
 
-<main class="page page--ticket">
-  <div class="ticket-grid">
-
-    <!-- Kiri: hero + tiket -->
-    <div class="ticket-grid__left page__col">
-      <section class="success">
-        <div class="success__icon"><i class="bi bi-check-lg"></i></div>
-        <span class="chip-status"><?= e(strtoupper($tiket['status'])) ?></span>
-        <h2>Reservasi Berhasil Dikonfirmasi!</h2>
-        <p>Pembayaran telah diverifikasi secara otomatis via <?= e($tiket['metode']) ?>. Akses lapangan Anda sudah siap.</p>
-      </section>
-
-      <section class="card-app ticket">
-        <div class="ticket__top">
-          <div class="ticket__row">
-            <span class="label-caps">Kode Reservasi</span>
-            <span class="chip-paid"><i class="bi bi-check-circle"></i> LUNAS (<?= e($tiket['metode']) ?>)</span>
-          </div>
-          <div class="code-box">
-            <strong class="code-box__code" id="kode"><?= e($tiket['kode']) ?></strong>
-            <button type="button" class="btn-copy" id="btnSalin"><i class="bi bi-copy"></i> <span>Salin</span></button>
-          </div>
+    <?php if (!$detail): ?>
+        <div class="tk-empty">
+            <i class="bi bi-ticket-perforated fs-1 d-block mb-2"></i>
+            <strong class="d-block mb-1">Pesanan tidak ditemukan</strong>
+            Kode booking tidak terdaftar di akun Anda.
         </div>
-
-        <div class="ticket__qr">
-          <div class="ticket__qr-box"><img src="../../assets/img/qr.png" alt="QR Tiket"></div>
-          <p>Tunjukkan QR ini kepada resepsionis saat kedatangan</p>
-        </div>
-
-        <div class="ticket__tear" aria-hidden="true"></div>
-
-        <div class="ticket__venue">
-          <div class="venue">
-            <span class="menu__icon tint-indigo"><i class="bi bi-dribbble"></i></span>
-            <div>
-              <span class="label-caps">Venue &amp; Lapangan</span>
-              <h3><?= e($tiket['venue']) ?></h3>
-              <p><?= e($tiket['alamat']) ?></p>
+    <?php else:
+        $r  = $detail['rincian'];
+        $si = $detail['status_info'];
+        $st = $detail['status_tampil'];
+    ?>
+        <article class="tk-ticket">
+            <div class="tk-head">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <small style="opacity:.8">KODE BOOKING</small>
+                    <span class="tk-badge tone-<?= e($si['tone']) ?>"><?= e($si['teks']) ?></span>
+                </div>
+                <div class="tk-kode"><?= e($detail['kode']) ?></div>
+                <div style="opacity:.85"><?= e($detail['lapangan_nama']) ?></div>
             </div>
-          </div>
 
-          <div class="info-grid">
-            <div class="info-tile">
-              <span class="label-caps"><i class="bi bi-calendar3"></i> Jadwal Main</span>
-              <strong><?= e($tiket['tanggal']) ?></strong>
-              <span class="accent"><?= e($tiket['jam']) ?></span>
-            </div>
-            <div class="info-tile">
-              <span class="label-caps"><i class="bi bi-person"></i> Penyewa</span>
-              <strong><?= e($tiket['penyewa']) ?></strong>
-              <span class="muted"><?= e($tiket['tim']) ?></span>
-            </div>
-          </div>
+            <div class="tk-body">
+                <div class="tk-row"><span>Tanggal</span><span><?= e($detail['tanggal_label']) ?></span></div>
+                <div class="tk-row"><span>Jam</span><span><?= e($detail['jam_label']) ?></span></div>
+                <div class="tk-row"><span>Lokasi</span><span><?= e($detail['kecamatan']) ?>, <?= e($detail['kota']) ?></span></div>
+                <div class="pt-1">
+                    <?php foreach ($slotDetail as $s): ?><span class="tk-slot"><?= e($s) ?></span><?php endforeach; ?>
+                </div>
 
-          <div class="total-bar">
-            <span>Total Terbayar</span>
-            <span><strong><?= e(rupiah($tiket['total'])) ?></strong> <small>(Lunas)</small></span>
-          </div>
-        </div>
-      </section>
+                <div class="tk-sep"></div>
+
+                <div class="tk-row"><span>Sewa Lapangan (<?= e(formatDurasi((int) ($r['durasi_menit'] ?? 0))) ?>)</span><span><?= e(rupiahTeks((int) ($r['sewa'] ?? 0))) ?></span></div>
+                <?php foreach (($r['opsi'] ?? []) as $o): ?>
+                <div class="tk-row"><span><?= e($o['label']) ?></span><span><?= (int) $o['harga'] > 0 ? e(rupiahTeks((int) $o['harga'])) : 'Gratis' ?></span></div>
+                <?php endforeach; ?>
+                <div class="tk-row"><span>Biaya Layanan</span><span><?= e(rupiahTeks((int) ($r['layanan'] ?? 0))) ?></span></div>
+                <div class="tk-row"><span><strong>Total</strong></span><span style="color:#006a4a"><?= e(rupiahTeks((int) $detail['total'])) ?></span></div>
+                <?php if (($detail['metode'] ?? '') === 'onsite' && in_array($st, ['dibayar', 'selesai', 'menunggu'], true)): ?>
+                <div class="tk-row"><span>Sisa dibayar di kasir</span><span><?= e(rupiahTeks((int) ($r['sisa_di_tempat'] ?? 0))) ?></span></div>
+                <?php endif; ?>
+                <div class="tk-row"><span>Metode</span><span><?= e(METODE_BAYAR[$detail['metode'] ?? ''] ?? '-') ?></span></div>
+
+                <div class="tk-sep"></div>
+                <p id="tkPesan" class="small text-danger fw-semibold" role="alert"></p>
+
+                <?php if ($st === 'menunggu'): ?>
+                    <p class="small text-secondary">Selesaikan pembayaran sebelum batas waktu habis, kalau tidak jadwal dilepas.</p>
+                    <a href="bayar.php?kode=<?= e($detail['kode']) ?>" class="btn btn-main w-100 mb-2">Lanjut Bayar</a>
+                    <button type="button" id="tkBatal" class="btn btn-reset w-100">Batalkan Pesanan</button>
+                <?php elseif ($st === 'dibayar'): ?>
+                    <p class="small text-secondary mb-0"><i class="bi bi-check-circle-fill text-success"></i>
+                        Tunjukkan kode booking ini di kasir lapangan saat datang.
+                        Untuk pembatalan atau perubahan jadwal, hubungi pengelola lapangan.</p>
+                <?php else: ?>
+                    <a href="detail_jadwal.php?id=<?= (int) $detail['lapangan_id'] ?>" class="btn btn-main w-100">Pesan Lagi</a>
+                <?php endif; ?>
+            </div>
+        </article>
+    <?php endif; ?>
+
+<?php else: ?>
+    <!-- ================= DAFTAR PESANAN ================= -->
+    <div class="section-head mb-3"><h2>Pesanan Saya</h2></div>
+
+    <div class="tk-tabs" role="tablist">
+        <a href="tiket.php" class="tk-tab <?= $tab === 'aktif' ? 'on' : '' ?>" role="tab" aria-selected="<?= $tab === 'aktif' ? 'true' : 'false' ?>">Aktif <small>(<?= count($aktif) ?>)</small></a>
+        <a href="tiket.php?tab=riwayat" class="tk-tab <?= $tab === 'riwayat' ? 'on' : '' ?>" role="tab" aria-selected="<?= $tab === 'riwayat' ? 'true' : 'false' ?>">Riwayat <small>(<?= count($riwayat) ?>)</small></a>
     </div>
 
-    <!-- Kanan: fasilitas, instruksi, lokasi, aksi -->
-    <div class="page__col">
-      <figure class="facility">
-        <img src="../../assets/img/fasilitas.jpg" alt="Fasilitas venue">
-        <figcaption><i class="bi bi-shield-check"></i><span><?= e($tiket['fasilitas']['teks']) ?></span></figcaption>
-      </figure>
-
-      <details class="card-app fold" open>
-        <summary>
-          <span class="menu__icon tint-indigo"><i class="bi bi-info-circle"></i></span>
-          <span class="fold__title">Instruksi Kedatangan <span>(<?= count($instruksi) ?> Poin)</span></span>
-          <i class="bi bi-chevron-up fold__chev" aria-hidden="true"></i>
-        </summary>
-        <ol class="steps">
-          <?php foreach ($instruksi as $langkah): ?>
-            <li><?= $langkah ?></li>
-          <?php endforeach; ?>
-        </ol>
-      </details>
-
-      <details class="card-app fold" open>
-        <summary>
-          <span class="menu__icon tint-indigo"><i class="bi bi-map"></i></span>
-          <span class="fold__title">Lokasi &amp; Petunjuk Arah <span>(<?= e($tiket['jarak']) ?>)</span></span>
-          <i class="bi bi-chevron-up fold__chev" aria-hidden="true"></i>
-        </summary>
-        <div class="map">
-          <iframe src="<?= e($mapEmbed) ?>" title="Peta lokasi" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          <span class="map__traffic"><?= e($tiket['trafik']) ?></span>
-          <div class="map__place">
-            <div>
-              <strong><?= e($tiket['venue']) ?></strong>
-              <small><?= e($tiket['patokan']) ?></small>
-            </div>
-            <a class="btn-route" href="<?= e($mapLink) ?>" target="_blank" rel="noopener"><i class="bi bi-cursor"></i> Rute</a>
-          </div>
+    <?php if (!$tampil): ?>
+        <div class="tk-empty">
+            <i class="bi bi-ticket-perforated fs-1 d-block mb-2"></i>
+            <strong class="d-block mb-1"><?= $tab === 'aktif' ? 'Belum ada pesanan aktif' : 'Belum ada riwayat pesanan' ?></strong>
+            Pesanan Anda akan muncul di sini.
+            <div class="mt-3"><a href="beranda.php" class="btn btn-main">Cari Lapangan</a></div>
         </div>
-      </details>
+    <?php endif; ?>
 
-      <nav class="actions" aria-label="Aksi tiket">
-        <a class="btn-main" href="<?= e($tiket['pdf']) ?>" download><i class="bi bi-download"></i> Unduh Tiket PDF / Simpan Gambar</a>
-        <a class="btn-soft" href="<?= e($mapLink) ?>" target="_blank" rel="noopener"><i class="bi bi-cursor"></i> Petunjuk Arah (Buka Google Maps)</a>
-        <a class="link-home" href="beranda.php"><i class="bi bi-house"></i> Kembali ke Beranda</a>
-      </nav>
-    </div>
+    <?php foreach ($tampil as $b): $si = $b['status_info']; ?>
+        <a href="tiket.php?kode=<?= e($b['kode']) ?>" class="tk-card">
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                <strong><?= e($b['lapangan_nama']) ?></strong>
+                <span class="tk-badge tone-<?= e($si['tone']) ?>"><?= e($si['teks']) ?></span>
+            </div>
+            <div class="tk-meta"><i class="bi bi-calendar-event me-1"></i><?= e($b['tanggal_label']) ?> &bull; <?= e($b['jam_label']) ?></div>
+            <div class="d-flex justify-content-between align-items-end mt-2">
+                <span class="tk-meta"><?= e($b['kode']) ?>
+                    <?php if ($b['status_tampil'] === 'menunggu' && $b['sisa_detik'] !== null): ?>
+                        &bull; sisa <?= (int) ceil($b['sisa_detik'] / 60) ?> menit
+                    <?php endif; ?>
+                </span>
+                <strong style="color:#006a4a"><?= e(rupiahTeks((int) $b['total'])) ?></strong>
+            </div>
+        </a>
+    <?php endforeach; ?>
+<?php endif; ?>
 
-  </div>
 </main>
 
+<?php if ($detail && $detail['status_tampil'] === 'menunggu'): ?>
 <script>
-// Salin kode reservasi ke clipboard
-document.getElementById('btnSalin').addEventListener('click', async function () {
-  const label = this.querySelector('span');
-  try {
-    await navigator.clipboard.writeText(document.getElementById('kode').textContent.trim());
-    label.textContent = 'Tersalin!';
-  } catch (err) {
-    label.textContent = 'Gagal';
-  }
-  setTimeout(() => (label.textContent = 'Salin'), 1800);
-});
+(function () {
+    var btn = document.getElementById('tkBatal');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+        if (!confirm('Batalkan pesanan ini? Jadwal akan dilepas.')) return;
+        var pesan = document.getElementById('tkPesan');
+        pesan.style.display = 'none';
+        btn.disabled = true;
+        fetch('../../../backend/api/user/booking.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+            body: JSON.stringify({ aksi: 'batal', kode: <?= json_encode($detail['kode']) ?> })
+        })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (r) {
+            if (!r) throw new Error('Server tidak merespons dengan benar.');
+            if (!r.success) throw new Error(r.message);
+            location.reload();
+        })
+        .catch(function (err) {
+            pesan.textContent = err.message || 'Terjadi kesalahan. Coba lagi.';
+            pesan.style.display = 'block';
+            btn.disabled = false;
+        });
+    });
+})();
 </script>
-</body>
-</html>
+<?php endif; ?>
+
+<?php include '../../components/footer.php'; ?>

@@ -1,0 +1,32 @@
+/* Bagian "Pesanan Masuk" di dashboard owner */
+.po-tabs{display:flex;gap:.5rem}
+.po-tab{flex:1;border:0;border-radius:14px;padding:.6rem;background:#fff;color:#5f6b7a;font-weight:700}
+.po-tab.on{background:#006a4a;color:#fff}
+.po-select{width:100%;border:2px solid transparent;border-radius:14px;background:#fff;padding:.65rem .9rem;font-weight:600}
+.po-select:focus{outline:0;border-color:#006a4a}
+.po-refresh{border:0;background:#eef2ff;border-radius:12px;width:40px;height:40px;font-size:1.1rem;color:#0d1b2e}
+.po-refresh:hover{background:#e2e8ff}
+
+.po-card{background:#fff;border-radius:18px;padding:1rem 1.1rem;margin-bottom:.75rem;box-shadow:0 6px 18px rgba(13,27,46,.07)}
+.po-utama{min-width:0}
+.po-judul{font-weight:800}
+.po-meta{color:#5f6b7a;font-size:.88rem}
+.po-baris{margin-top:.55rem}
+.po-kontak{display:flex;flex-wrap:wrap;gap:.4rem .9rem;margin-top:.4rem;font-size:.88rem}
+.po-kontak a{color:#006a4a;font-weight:700;text-decoration:none;word-break:break-all}
+.po-kontak a:hover{text-decoration:underline}
+.po-bawah{display:flex;justify-content:space-between;align-items:flex-end;gap:.75rem;margin-top:.7rem;padding-top:.6rem;border-top:1px dashed #dfe5f3}
+.po-uang{color:#006a4a;white-space:nowrap}
+
+.po-badge{display:inline-block;border-radius:999px;padding:.2rem .7rem;font-size:.75rem;font-weight:800;white-space:nowrap}
+.po-badge.tone-hijau{background:#d8f5e6;color:#005239}
+.po-badge.tone-kuning{background:#fff1cc;color:#8a5a00}
+.po-badge.tone-merah{background:#ffd9d6;color:#b3141b}
+.po-badge.tone-abu{background:#eceff6;color:#5f6b7a}
+
+.po-kosong{text-align:center;color:#5f6b7a;padding:2rem 1rem}
+.po-kosong i{display:block;font-size:2rem;margin-bottom:.4rem}
+.po-skeleton{height:120px;border-radius:18px;margin-bottom:.75rem;
+  background:linear-gradient(90deg,#eaeefb 25%,#f6f8ff 50%,#eaeefb 75%);background-size:200% 100%;animation:po-sk 1.2s infinite}
+@keyframes po-sk{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.po-skeleton{animation:none}}

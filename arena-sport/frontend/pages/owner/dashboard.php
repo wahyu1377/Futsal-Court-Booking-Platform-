@@ -5,6 +5,9 @@
  * Halaman ini memakai komponen header/footer yang sudah ada, dan data
  * lapangan diambil lewat API (backend/api/owner/lapangan.php) memakai
  * Vanilla JS supaya tidak perlu reload halaman saat menambah/mengubah data.
+ *
+ * Bagian "Pesanan Masuk" memakai API terpisah (backend/api/owner/pesanan.php)
+ * dan skrip terpisah (owner-pesanan.js).
  */
 require __DIR__ . '/../../../backend/core/auth.php';
 requireLogin('owner');
@@ -16,6 +19,7 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
 ?>
 <?php include '../../components/header.php'; ?>
 <link href="../../assets/css/owner.css" rel="stylesheet">
+<link href="../../assets/css/owner-pesanan.css" rel="stylesheet">
 
 <!-- Bar atas -->
 <div class="owner-bar">
@@ -40,7 +44,7 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
 
 <main class="container py-3">
 
-  <!-- Ringkasan -->
+  <!-- Ringkasan lapangan -->
   <div class="row g-3 mb-3">
     <div class="col-4">
       <div class="stat-card">
@@ -61,6 +65,51 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
       </div>
     </div>
   </div>
+
+  <!-- Ringkasan pesanan -->
+  <div class="row g-3 mb-4">
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="label">PESANAN HARI INI</div>
+        <div class="value" id="statHariIni">0</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="label">MENUNGGU BAYAR</div>
+        <div class="value" id="statMenunggu">0</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="stat-card">
+        <div class="label">PENDAPATAN BLN INI</div>
+        <div class="value" id="statPendapatan" title="Pesanan terkonfirmasi bulan ini, tidak termasuk biaya layanan">Rp0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pesanan masuk -->
+  <section id="pesananOwner" class="mb-4" data-api="../../../backend/api/owner/pesanan.php">
+    <div class="d-flex justify-content-between align-items-end mb-2">
+      <div>
+        <h2 class="fw-bold mb-1" style="font-size:1.15rem">Pesanan Masuk</h2>
+        <small class="text-muted">Pemesanan pengguna untuk lapangan Anda</small>
+      </div>
+      <button type="button" class="po-refresh" id="poRefresh" aria-label="Muat ulang pesanan">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+
+    <div class="po-tabs mb-2" role="tablist">
+      <button type="button" class="po-tab on" data-tab="aktif" role="tab" aria-selected="true">Aktif</button>
+      <button type="button" class="po-tab" data-tab="riwayat" role="tab" aria-selected="false">Riwayat</button>
+    </div>
+    <select id="poFilter" class="po-select mb-2" aria-label="Filter lapangan">
+      <option value="">Semua lapangan</option>
+    </select>
+    <div id="poInfo" class="small text-muted mb-2"></div>
+    <div id="poList"></div>
+  </section>
 
   <!-- Judul + tombol tambah (desktop) -->
   <div class="d-flex justify-content-between align-items-end mb-3">
@@ -113,5 +162,8 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
     <i class="bi bi-x-lg"></i>
   </button>
 </div>
+
+<!-- Skrip bagian Pesanan Masuk (berdiri sendiri, tidak bergantung owner-lapangan.js) -->
+<script src="../../assets/js/owner-pesanan.js"></script>
 
 <?php include '../../components/footer.php'; ?>

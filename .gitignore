@@ -2,6 +2,7 @@
 .env
 .env.local
 arena-sport/backend/config/database.local.php
+arena-sport/backend/config/doku.local.php
 
 # Foto profil pengguna (diunggah lewat Edit Profil); .htaccess pelindungnya tetap ikut
 arena-sport/frontend/assets/img/avatars/*
