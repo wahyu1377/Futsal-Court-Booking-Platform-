@@ -423,8 +423,15 @@ if ($metode === 'DELETE') {
     if ($id <= 0) respond(false, 'ID lapangan tidak valid.', [], 422);
 
     // Ownership dicek lewat DELETE-nya sendiri, jadi tidak bisa hapus milik orang lain
-    $st = $pdo->prepare("DELETE FROM lapangan WHERE id = ? AND owner_id = ?");
-    $st->execute([$id, $idOwner]);
+       $st = $pdo->prepare("DELETE FROM lapangan WHERE id = ? AND owner_id = ?");
+    try {
+        $st->execute([$id, $idOwner]);
+    } catch (PDOException $e) {
+        if ($e->getCode() === '23503') {   // masih dipakai tabel lain (pesanan)
+            respond(false, 'Lapangan ini sudah punya riwayat pesanan sehingga tidak bisa dihapus. Matikan "Tampilkan lapangan ke pengguna" saja.', [], 409);
+        }
+        throw $e;
+    }
 
     if ($st->rowCount() === 0) {
         respond(false, 'Lapangan tidak ditemukan.', [], 404);

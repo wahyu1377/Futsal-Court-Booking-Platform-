@@ -1,0 +1,12 @@
+<?php
+/**
+ * Salin file ini menjadi doku.local.php lalu isi nilainya. tempatnya di Backend -> API -> user -> Config
+ * doku.local.php JANGAN di-commit (sudah ada di .gitignore).
+ */
+return [
+    'env'        => 'sandbox',                            // 'sandbox' atau 'production'
+    'client_id'  => 'MCH-XXXX-XXXXXXXXXXXXX',             // dari DOKU Back Office (Integration > API Keys)
+    'secret_key' => 'SK-XXXXXXXXXXXXXXXXXXXX',            // dari tempat yang sama, rahasia
+    'app_url'    => 'http://localhost:3000/arena-sport atau https://arena-sport.wasmer.app',  // alamat folder arena-sport di browser (tanpa / di akhir)
+    'notify_url' => '',                                   // URL PUBLIK HTTPS ke doku_notify.php; kosongkan kalau belum ada
+];

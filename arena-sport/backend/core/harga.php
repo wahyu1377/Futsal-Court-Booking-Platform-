@@ -50,3 +50,31 @@ function hargaSlot(int $hargaPerJam, int $jam): int
         ? (int) round($hargaPerJam * HARGA_PRIME_MULTIPLIER)
         : $hargaPerJam;
 }
+
+/**
+ * Harga satu sesi: harga per jam (termasuk Prime Time) dikali durasi sesi dalam jam.
+ */
+function hargaSesi(int $hargaPerJam, int $jam, int $durasiMenit): int
+{
+    return (int) round(hargaSlot($hargaPerJam, $jam) * $durasiMenit / 60);
+}
+
+// Biaya tambahan & layanan: dipakai checkout.php (tampilan) dan booking.php (tagihan)
+const HARGA_ROMPI   = 30000;
+const HARGA_WASIT   = 100000;
+const BIAYA_LAYANAN = 2000;
+const DP_PERSEN     = 50;      // untuk metode "Bayar di Tempat"
+
+const METODE_BAYAR = [
+    'online' => 'Bayar Online (DOKU)',
+    'onsite' => 'DP, sisa di kasir',
+];
+
+function opsiTambahanTersedia(): array
+{
+    return [
+        'rompi' => ['label' => 'Sewa Rompi Latihan',     'harga' => HARGA_ROMPI],
+        'wasit' => ['label' => 'Jasa Wasit Pertandingan', 'harga' => HARGA_WASIT],
+        'bola'  => ['label' => 'Bola Futsal Tambahan',    'harga' => 0],
+    ];
+}
