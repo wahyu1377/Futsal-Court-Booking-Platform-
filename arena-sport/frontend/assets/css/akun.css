@@ -1,0 +1,332 @@
+/* ============================================================
+   akun.css
+   Gaya tambahan untuk halaman akun (pengguna & owner):
+   akun.php, edit-profil.php, setelan.php, bantuan.php
+   Mengikuti gaya dasar style.css (halaman akun pengguna).
+   ============================================================ */
+
+/* ---------- Pesan error / sukses ---------- */
+.op-alert {
+  border-radius: var(--radius-kontrol);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.op-alert.ok {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+.op-alert.err {
+  background: var(--red-100);
+  color: var(--red-600);
+}
+
+/* ---------- Formulir ---------- */
+.op-form {
+  padding: 20px 18px;
+}
+.op-form__title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  color: var(--secondary-900);
+}
+.op-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--neutral-700, #475569);
+  margin: 14px 0 6px;
+}
+.op-input {
+  width: 100%;
+  border: 1px solid var(--neutral-200, #e2e8f0);
+  border-radius: var(--radius-kontrol);
+  padding: 11px 13px;
+  font-size: 15px;
+  font-family: inherit;
+  color: inherit;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.op-input:focus {
+  outline: none;
+  border-color: var(--primary-500, #0a8f63);
+  box-shadow: 0 0 0 3px rgba(0, 138, 99, .15);
+}
+.op-input.is-invalid {
+  border-color: var(--red-600);
+}
+.op-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--neutral-500, #64748b);
+  line-height: 1.5;
+}
+.op-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 16px;
+  font: 600 15px/22px 'Inter', sans-serif;
+  color: #fff;
+  background: var(--primary-600);
+  border: 1px solid var(--primary-600);
+  border-radius: var(--radius-kontrol);
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.op-btn:hover {
+  background: var(--primary-700);
+  border-color: var(--primary-700);
+}
+.op-btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Varian tombol */
+.op-btn--soft {
+  background: var(--neutral-100);
+  border-color: var(--neutral-200);
+  color: var(--secondary-900);
+}
+.op-btn--soft:hover {
+  background: var(--neutral-200);
+  border-color: var(--neutral-200);
+}
+.op-btn--danger {
+  background: var(--red-100);
+  border-color: var(--red-200);
+  color: var(--red-600);
+}
+.op-btn--danger:hover {
+  background: var(--red-200);
+  border-color: var(--red-200);
+}
+.op-alert code {
+  font-size: 12px;
+  background: rgba(15, 23, 42, .06);
+  padding: 1px 5px;
+  border-radius: 5px;
+}
+
+/* ---------- Sakelar notifikasi ---------- */
+.op-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.op-switch + .op-switch {
+  border-top: 1px solid var(--neutral-100, #f1f5f9);
+}
+.op-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.op-switch__track {
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--neutral-200, #e2e8f0);
+  position: relative;
+  transition: background .18s ease;
+  margin-top: 2px;
+}
+.op-switch__dot {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, .25);
+  transition: transform .18s ease;
+}
+.op-switch input:checked + .op-switch__track {
+  background: var(--primary-600, #007a55);
+}
+.op-switch input:checked + .op-switch__track .op-switch__dot {
+  transform: translateX(18px);
+}
+.op-switch input:focus-visible + .op-switch__track {
+  box-shadow: 0 0 0 3px rgba(0, 138, 99, .25);
+}
+.op-switch__text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.op-switch__text small {
+  display: block;
+  font-size: 12px;
+  color: var(--neutral-500, #64748b);
+  margin-top: 2px;
+}
+
+/* ---------- Informasi akun ---------- */
+.op-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--neutral-100, #f1f5f9);
+}
+.op-info__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--neutral-100, #f1f5f9);
+}
+.op-info strong {
+  display: block;
+  font-size: 15px;
+}
+.op-info small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--neutral-500, #64748b);
+}
+.op-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+.op-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  font-size: 13.5px;
+  border-bottom: 1px dashed var(--neutral-100, #f1f5f9);
+}
+.op-list li span {
+  color: var(--neutral-500, #64748b);
+}
+.op-list li strong {
+  font-weight: 600;
+  text-align: right;
+}
+.op-list li strong.ok {
+  color: var(--primary-600, #007a55);
+}
+.op-link-btn {
+  display: block;
+  margin-top: 16px;
+  text-align: center;
+  padding: 11px;
+  border-radius: var(--radius-kontrol);
+  border: 1px solid var(--neutral-200, #e2e8f0);
+  font-size: 14px;
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+  transition: background .15s ease;
+}
+.op-link-btn:hover {
+  background: var(--neutral-50, #f8fafc);
+}
+
+/* ---------- FAQ ---------- */
+.op-accordion .accordion-item {
+  border: 1px solid var(--neutral-100, #f1f5f9);
+  border-radius: var(--radius-kontrol) !important;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.op-accordion .accordion-button {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 13px 15px;
+  background: #fff;
+}
+.op-accordion .accordion-button:not(.collapsed) {
+  background: var(--primary-100, #e6f7f0);
+  color: var(--primary-700, #005239);
+  box-shadow: none;
+}
+.op-accordion .accordion-body {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--neutral-700, #475569);
+}
+
+/* ============================================================
+   Radius & jarak yang seragam
+   ------------------------------------------------------------
+   Dulu tiap elemen memakai radius berbeda-beda (kartu 24px,
+   tombol 16px, isian 12px, alert 14px) sehingga tampilannya
+   terlihat tidak rapi.
+
+   Sekarang semuanya memakai dua skala tetap yang didefinisikan
+   sekali di style.css:
+
+     --radius-kartu   : 20px  -> container (kartu, alert, daftar menu)
+     --radius-kontrol : 12px  -> isian, tombol, tautan di dalam kartu
+     --jarak-kartu    : 20px  -> jarak antar container dalam satu halaman
+
+   Blok ini diletakkan paling akhir supaya menimpa aturan di atas.
+   ============================================================ */
+
+/* Container: kartu & daftar menu (lihat juga style.css). */
+.card-app,
+.menu {
+  border-radius: var(--radius-kartu);
+}
+
+/* Elemen yang hidup di dalam kartu: isian, tombol, tautan, dan
+   pesan alert yang menempel di dalam sebuah kartu. */
+.op-input,
+.op-btn,
+.op-link-btn,
+.op-alert {
+  border-radius: var(--radius-kontrol);
+}
+
+/* Alert yang berdiri sendiri (sejajar dengan kartu-kartu lain)
+   diperlakukan sebagai container, jadi radiusnya ikut kartu. */
+.op-stack > .op-alert {
+  border-radius: var(--radius-kartu);
+}
+
+.op-accordion .accordion-item {
+  border-radius: var(--radius-kontrol) !important;
+}
+
+/* Wadah kartu di dalam halaman: memberi jarak antar container
+   supaya tiap kartu tidak saling menempel. */
+.op-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jarak-kartu);
+}
+
+/* Halaman akun (akun.php) menumpuk kartu & daftar menu langsung,
+   jadi wadahnya ikut memakai jarak yang sama. */
+.page__stack {
+  gap: var(--jarak-kartu);
+}
+
+/* Di layar lebar jaraknya dilebihkan supaya kartu tidak terasa berdesakan. */
+@media (min-width: 640px) {
+  .op-stack {
+    gap: 24px;
+  }
+
+  .page__stack {
+    gap: 24px;
+  }
+}
+

@@ -9,23 +9,109 @@
  * Nomor invoice di DOKU = kode booking (BKG-XXXXXX), jadi satu pesanan = satu invoice.
  */
 require_once __DIR__ . '/booking.php';
+require_once __DIR__ . '/../config/env.php';   // pembaca .env untuk kredensial DOKU
 
+/**
+ * Konfigurasi DOKU.
+ *
+ * Sumber nilai (urutan dari yang paling rendah):
+ *   1. Nilai bawaan di fungsi ini
+ *   2. backend/config/doku.local.php  -> nilai per mesin (mis. app_url localhost),
+ *      berkas opsional ini sudah masuk .gitignore
+ *   3. .env di root repository        -> kredensial (client_id, secret_key),
+ *      jadi rahasianya tidak pernah ada di dalam berkas PHP mana pun
+ *
+ * Environment variable asli (getenv) tetap menang lewat fungsi env().
+ */
 function dokuConfig(): array
 {
     static $cfg = null;
     if ($cfg === null) {
+        $cfg = [
+            'env'        => 'sandbox',   // 'sandbox' atau 'production'
+            'client_id'  => '',
+            'secret_key' => '',
+            'app_url'    => '',
+            'notify_url' => '',          // URL PUBLIK HTTPS ke doku_notify.php
+        ];
+
+        // 1) Berkas lokal per mesin (opsional)
         $file = __DIR__ . '/../config/doku.local.php';
-        if (!is_file($file)) {
-            throw new RuntimeException('Berkas backend/config/doku.local.php belum dibuat.');
+        if (is_file($file)) {
+            $lokal = (array) require $file;
+            foreach (array_keys($cfg) as $k) {
+                if (!empty($lokal[$k]) && is_string($lokal[$k])) {
+                    $cfg[$k] = $lokal[$k];
+                }
+            }
         }
-        $cfg = require $file;
+
+        // 2) .env / environment variable (kredensial & nilai yang dipakai bersama)
+        $petaEnv = [
+            'env'        => 'DOKU_ENV',
+            'client_id'  => 'DOKU_CLIENT_ID',
+            'secret_key' => 'DOKU_SECRET_KEY',
+            'app_url'    => 'DOKU_APP_URL',
+            'notify_url' => 'DOKU_NOTIFY_URL',
+        ];
+        foreach ($petaEnv as $k => $namaEnv) {
+            $nilai = env($namaEnv);
+            if ($nilai !== null && $nilai !== '') {
+                $cfg[$k] = $nilai;
+            }
+        }
+
+        // 3) app_url belum diisi -> tebak dari alamat request yang sedang berjalan.
+        //    Jadi anggota tim cukup menyalin .env.example ke .env tanpa perlu
+        //    menulis app_url manual. Nilai yang dikonfigurasi manual tetap menang.
+        if ($cfg['app_url'] === '') {
+            $cfg['app_url'] = dokuAppUrlOtomatis();
+        }
+
         foreach (['client_id', 'secret_key', 'app_url'] as $k) {
             if (empty($cfg[$k]) || !is_string($cfg[$k])) {
-                throw new RuntimeException("Konfigurasi DOKU '$k' belum diisi.");
+                throw new RuntimeException(
+                    "Konfigurasi DOKU '$k' belum diisi. Isi di .env (DOKU_"
+                    . strtoupper($k) . ') atau backend/config/doku.local.php.'
+                );
             }
         }
     }
     return $cfg;
+}
+
+/**
+ * Tebak alamat dasar folder arena-sport dari request yang sedang berjalan.
+ *
+ * Dipakai hanya sebagai cadangan ketika app_url belum dikonfigurasi manual.
+ * Contoh: SCRIPT_NAME = /arena-sport/backend/api/user/booking.php
+ *   -> alamat dasarnya http://host/arena-sport
+ * Saat aplikasi dipasang di root domain (tanpa /arena-sport), hasilnya
+ * http://host - keduanya sudah ditangani oleh pemotongan di bawah.
+ */
+function dokuAppUrlOtomatis(): string
+{
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if ($host === '') {
+        return '';   // dijalankan dari CLI, tidak ada request untuk ditebak
+    }
+
+    $https = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
+        || (string) ($_SERVER['SERVER_PORT'] ?? '') === '443';
+
+    // Ambil bagian path sebelum folder backend/ atau frontend/
+    $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $base   = '';
+    foreach (['/backend/', '/frontend/'] as $penanda) {
+        $posisi = strpos($script, $penanda);
+        if ($posisi !== false) {
+            $base = substr($script, 0, $posisi);
+            break;
+        }
+    }
+
+    return ($https ? 'https://' : 'http://') . $host . $base;
 }
 
 function dokuUrlDasar(array $c): string
@@ -166,6 +252,13 @@ function jumlahCocok(mixed $amount, int $diharapkan): bool
 /**
  * Verifikasi notifikasi dari DOKU: tanda tangan dihitung dari header + isi body mentah,
  * dengan Request-Target = path URL notifikasi kita.
+ *
+ * Request-Target yang dicoba:
+ *   1. path dari notify_url  -> inilah path yang didaftarkan di DOKU Back Office,
+ *                              jadi inilah yang dipakai DOKU saat menandatangani
+ *   2. path dari REQUEST_URI -> cadangan, untuk bila ada proxy yang menulis ulang path
+ *
+ * Menerima salah satu yang cocok, karena dua-duanya bisa berbeda di belakang proxy.
  */
 function dokuVerifikasiNotifikasi(string $rawBody): bool
 {
@@ -179,12 +272,19 @@ function dokuVerifikasiNotifikasi(string $rawBody): bool
         return false;
     }
 
-    $target = !empty($c['notify_url'])
-        ? (string) parse_url($c['notify_url'], PHP_URL_PATH)
-        : (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    $target = [];
+    if (!empty($c['notify_url'])) {
+        $target[] = (string) parse_url($c['notify_url'], PHP_URL_PATH);
+    }
+    $target[] = (string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 
-    $harapan = dokuSignature($clientId, $c['secret_key'], $requestId, $timestamp, $target, $rawBody);
-    return hash_equals($harapan, $signature);
+    foreach (array_unique(array_filter($target)) as $t) {
+        $harapan = dokuSignature($clientId, $c['secret_key'], $requestId, $timestamp, $t, $rawBody);
+        if (hash_equals($harapan, $signature)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**

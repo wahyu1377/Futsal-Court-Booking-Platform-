@@ -211,8 +211,29 @@ if (gBox) {
     } catch { showAlert('Koneksi Gagal', 'Tidak dapat terhubung ke server.'); }
   }
 
+  // Status pustaka Google & pengaman kalau pustakanya gagal dimuat.
+  //
+  // Catatan: error "origin is not allowed" datang dari dalam iframe milik
+  // Google, jadi tidak bisa dibaca dari script halaman ini. Untuk kasus itu,
+  // cek Google Cloud Console -> Authorized JavaScript origins (lihat petunjuk
+  // di bawah tombol pada halaman login).
+  let googleSiap = false;
+  const cekGoogleSiap = setTimeout(() => {
+    if (!googleSiap && !document.querySelector('#googleBtn iframe')) {
+      showAlert('Tombol Google Tidak Muncul', 'Pustaka Google tidak bisa dimuat. Periksa koneksi internet atau ad-blocker Anda.');
+    }
+  }, 8000);
+
   // Dipanggil otomatis oleh skrip Google setelah selesai dimuat
   window.onGoogleLibraryLoad = () => {
+    googleSiap = true;
+    clearTimeout(cekGoogleSiap);
+
+    if (!window.google || !google.accounts || !google.accounts.id) {
+      showAlert('Tombol Google Tidak Muncul', 'Pustaka Google tidak tersedia. Muat ulang halaman atau matikan ad-blocker.');
+      return;
+    }
+
     google.accounts.id.initialize({
       client_id: gBox.dataset.clientId,
       callback: resp => {

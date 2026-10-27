@@ -244,7 +244,171 @@ try {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Ringkasan
+// 5. Tabel password_reset (fitur lupa kata sandi - migrasi 005)
+// ---------------------------------------------------------------------------
+// Tabel ini opsional: kalau belum dimigrasikan, fitur reset kata sandi
+// tetap aman (API membalas pesan "belum aktif"), jadi levelnya 'warn', bukan fail.
+$adaReset = tabelAda($pdo, $skem, 'password_reset');
+cek(
+    'Tabel `password_reset` ada',
+    $adaReset,
+    $adaReset ? '' : 'belum dimigrasikan - jalankan 005_password_reset.sql (fitur lupa kata sandi nonaktif)',
+    'warn'
+);
+
+if ($adaReset) {
+    $kolomReset = daftarKolom($pdo, $skem, 'password_reset');
+    $butuhReset = ['id', 'token_hash', 'role', 'account_id', 'email_kirim', 'ip_address',
+                   'expires_at', 'used_at', 'created_at'];
+    $hilangReset = array_values(array_diff($butuhReset, $kolomReset));
+    cek(
+        'Kolom wajib tabel `password_reset` lengkap',
+        empty($hilangReset),
+        empty($hilangReset) ? count($butuhReset) . ' kolom ada' : 'kurang: ' . implode(', ', $hilangReset)
+    );
+
+    // Query inti fitur reset: simpan token (rollback) + cari token + tandai dipakai
+    try {
+        $pdo->beginTransaction();
+        $st = $pdo->prepare(
+            "INSERT INTO password_reset
+                (token_hash, role, account_id, email_kirim, ip_address, expires_at, created_at)
+             VALUES (?, 'user', -1, 'uji@coba.local', '127.0.0.1', ?, ?)"
+        );
+        $st->execute([
+            hash('sha256', 'smoke-test-token'),
+            date('Y-m-d H:i:s', time() + 3600),
+            date('Y-m-d H:i:s'),
+        ]);
+        $err = cobaQuery($pdo, "SELECT id FROM password_reset WHERE token_hash = ?", [hash('sha256', 'smoke-test-token')]);
+        $err = $err ?? cobaQuery($pdo, "UPDATE password_reset SET used_at = ? WHERE token_hash = ?",
+            [date('Y-m-d H:i:s'), hash('sha256', 'smoke-test-token')]);
+        $pdo->rollBack();
+
+        cek(
+            'Query token reset (insert + cari + tandai dipakai)',
+            $err === null,
+            $err ?? 'ok (rollback, data uji tidak tersimpan)'
+        );
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        cek('Query token reset (insert + cari + tandai dipakai)', false, $e->getMessage());
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 6. Tabel user_settings (fitur setelan pengguna - migrasi 006)
+// ---------------------------------------------------------------------------
+$adaSetelanUser = tabelAda($pdo, $skem, 'user_settings');
+cek(
+    'Tabel `user_settings` ada',
+    $adaSetelanUser,
+    $adaSetelanUser ? '' : 'belum dimigrasikan - jalankan 006_user_settings.sql (preferensi notifikasi user disimpan di perangkat saja)',
+    'warn'
+);
+
+if ($adaSetelanUser) {
+    $kolomSetelan = daftarKolom($pdo, $skem, 'user_settings');
+    $hilangSetelan = array_values(array_diff(
+        ['user_id', 'notifikasi_pesanan', 'notifikasi_email', 'notifikasi_wa', 'updated_at'],
+        $kolomSetelan
+    ));
+    cek(
+        'Kolom wajib tabel `user_settings` lengkap',
+        empty($hilangSetelan),
+        empty($hilangSetelan) ? '5 kolom ada' : 'kurang: ' . implode(', ', $hilangSetelan)
+    );
+}
+
+// ---------------------------------------------------------------------------
+// 7. Konfigurasi Google OAuth ("Masuk dengan Google")
+//
+// Tombol Google hanya bisa muncul kalau ORIGIN aplikasi sudah terdaftar di
+// "Authorized JavaScript origins" pada Google Cloud Console. Origin = scheme +
+// host + port (tanpa path). Contoh: http://localhost:8000
+// ---------------------------------------------------------------------------
+require_once __DIR__ . '/config/google.php';
+
+$clientIdGoogle = googleClientId();
+cek(
+    'Client ID Google terpasang',
+    $clientIdGoogle !== '',
+    $clientIdGoogle . (googleClientIdDariEnv() ? ' (dari .env)' : ' (nilai bawaan)')
+);
+
+$originGoogle = googleOriginHarusDaftar();
+cek(
+    'Origin aplikasi bisa ditentukan',
+    $originGoogle !== '',
+    $originGoogle !== '' ? $originGoogle : 'isi APP_URL di .env supaya origin-nya jelas'
+);
+
+// Cek langsung ke Google: kalau origin tidak terdaftar, endpoint tombol
+// membalas 403 dengan halaman modul GSI ("credential_button_library"), dan
+// modul di dalamnya memunculkan "The given origin is not allowed for the
+// given client ID" di console browser. Kalau 200, origin sudah benar.
+if ($originGoogle !== '' && $clientIdGoogle !== '') {
+    $urlTombol = 'https://accounts.google.com/gsi/button?type=standard&theme=outline'
+        . '&size=large&text=continue_with&logo_alignment=center&width=392'
+        . '&is_fedcm_supported=true&client_id=' . urlencode($clientIdGoogle) . '&hl=id';
+
+    $ch = curl_init($urlTombol);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 15,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_HTTPHEADER     => [
+            'Origin: ' . $originGoogle,
+            'Referer: ' . $originGoogle . '/',
+            'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language: id-ID,id;q=0.9,en-US;q=0.8',
+            'Sec-Fetch-Dest: iframe',
+            'Sec-Fetch-Mode: navigate',
+            'Sec-Fetch-Site: cross-site',
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
+        ],
+    ]);
+    $body = curl_exec($ch);
+    $kode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    if ($body === false) {
+        cek(
+            'Origin Google terdaftar (cek langsung ke Google)',
+            false,
+            'tidak bisa menghubungi Google: ' . $err,
+            'warn'
+        );
+    } elseif ($kode === 200) {
+        cek(
+            'Origin Google terdaftar (cek langsung ke Google)',
+            true,
+            $originGoogle . ' -> HTTP 200 (OK)'
+        );
+    } elseif (strpos((string) $body, 'credential_button_library') !== false) {
+        // Halaman modul GSI memang diterima Google, tapi 403 karena origin ditolak.
+        // Ini bukan masalah skema database, jadi levelnya 'warn' (tetap terlihat,
+        // tapi tidak menggagalkan smoke test).
+        cek(
+            'Origin Google terdaftar (cek langsung ke Google)',
+            false,
+            $originGoogle . ' -> HTTP 403 (origin ditolak). Daftarkan origin ini persis di '
+                . 'Google Cloud Console -> Credentials -> OAuth 2.0 Client ID -> Authorized JavaScript origins',
+            'warn'
+        );
+    } else {
+        cek(
+            'Origin Google terdaftar (cek langsung ke Google)',
+            false,
+            $originGoogle . ' -> HTTP ' . $kode . ' (respon tidak dikenali, cek manual di console browser)',
+            'warn'
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 8. Ringkasan
 // ---------------------------------------------------------------------------
 echo "\n";
 $ikon = ['ok' => '[ OK ]', 'warn' => '[WARN]', 'fail' => '[FAIL]'];

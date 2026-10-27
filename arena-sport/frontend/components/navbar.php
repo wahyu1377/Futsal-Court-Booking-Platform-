@@ -29,7 +29,7 @@ $activeNav = $activeNav ?? '';
     <div class="d-flex align-items-center gap-3">
       <button class="icon-btn" aria-label="Notifikasi"><i class="bi bi-bell"></i></button>
       <?php if ($user): ?>
-        <a href="<?= $user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php' ?>" class="avatar" title="<?= e($user['name']) ?>">
+        <a href="<?= $user['role'] === 'owner' ? '../owner/akun.php' : 'akun.php' ?>" class="avatar" title="<?= e($user['name']) ?>">
         <img src="<?= e(avatarSrc($user['name'], $user['avatar'] ?? null)) ?>" alt="Akun <?= e($user['name']) ?>">
         </a>
       <?php else: ?>
@@ -44,5 +44,5 @@ $activeNav = $activeNav ?? '';
   <a href="beranda.php" class="<?= $activeNav === 'beranda' ? 'active' : '' ?>"><i class="bi bi-dribbble"></i><span>Beranda</span></a>
   <a href="<?= $user ? 'favorit.php' : '../auth/login.php' ?>" class="<?= $activeNav === 'favorit' ? 'active' : '' ?>"><i class="bi bi-bookmark"></i><span>Favorit</span></a>
   <a href="<?= $user ? 'tiket.php' : '../auth/login.php' ?>" class="<?= $activeNav === 'pesanan' ? 'active' : '' ?>"><i class="bi bi-ticket-perforated"></i><span>Pesanan</span></a>
-  <a href="<?= $user ? ($user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php') : '../auth/login.php' ?>" class="<?= $activeNav === 'akun' ? 'active' : '' ?>"><i class="bi bi-person-circle"></i><span>Akun</span></a>
+  <a href="<?= $user ? ($user['role'] === 'owner' ? '../owner/akun.php' : 'akun.php') : '../auth/login.php' ?>" class="<?= $activeNav === 'akun' ? 'active' : '' ?>"><i class="bi bi-person-circle"></i><span>Akun</span></a>
 </nav>
