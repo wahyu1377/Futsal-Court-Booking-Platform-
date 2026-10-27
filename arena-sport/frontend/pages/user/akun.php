@@ -66,14 +66,8 @@ $menuBantuan = [
     ['bi-question-circle', 'tint-green', 'Bantuan', 'FAQ, kebijakan privasi, & hubungi admin', 'bantuan.php', null],
 ];
 
-// Navigasi bawah
+// Navigasi bawah (ikon & isi_nav disatukan di components/nav-bottom-user.php)
 $halamanAktif = 'akun';
-$nav = [
-    'beranda' => ['bi-dribbble',          'Beranda', 'beranda.php'],
-    'favorit' => ['bi-bookmark',          'Favorit', 'favorit.php'],
-    'pesanan' => ['bi-ticket-perforated', 'Pesanan', 'tiket.php'],
-    'akun'    => ['bi-person-circle',     'Akun',    'akun.php'],
-];
 
 // Render satu grup menu
 function renderMenu(array $items, string $extraClass = ''): void
@@ -110,6 +104,8 @@ function renderMenu(array $items, string $extraClass = ''): void
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <!-- CSS kita HARUS setelah Bootstrap -->
   <link href="../../assets/css/style.css" rel="stylesheet">
+  <link href="../../assets/css/akun.css" rel="stylesheet">
+  <link href="../../assets/css/bottom-nav.css" rel="stylesheet">
 </head>
 <body class="app">
 
@@ -157,16 +153,7 @@ function renderMenu(array $items, string $extraClass = ''): void
   </div>
 </main>
 
-<nav class="bottom-nav" aria-label="Navigasi utama">
-  <div class="bottom-nav__list">
-    <?php foreach ($nav as $key => [$ikon, $label, $href]): ?>
-      <a class="bottom-nav__link<?= $key === $halamanAktif ? ' is-active' : '' ?>"
-         href="<?= e($href) ?>"<?= $key === $halamanAktif ? ' aria-current="page"' : '' ?>>
-        <i class="bi <?= e($ikon) ?>"></i><span><?= e($label) ?></span>
-      </a>
-    <?php endforeach; ?>
-  </div>
-</nav>
+<?php include __DIR__ . '/../../components/nav-bottom-user.php'; ?>
 
 </body>
 </html>

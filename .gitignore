@@ -11,6 +11,9 @@ arena-sport/frontend/assets/img/avatars/*
 # Foto lapangan yang diunggah owner (jangan ikut di-commit)
 arena-sport/frontend/assets/img/lapangan/owner/
 
+# Konfigurasi lokal Claude Code (izin personal, jangan ikut di-commit)
+.claude/settings.local.json
+
 # Log & berkas sementara
 *.log
 npm-debug.log*

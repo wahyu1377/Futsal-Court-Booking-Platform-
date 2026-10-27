@@ -25,6 +25,14 @@ require_once __DIR__ . '/../../../backend/config/google.php';
           <strong id="alertTitle"></strong><span id="alertText"></span>
         </div>
 
+        <?php // Pesan sukses setelah pengguna selesai mengganti kata sandi ?>
+        <?php if (isset($_GET['reset']) && $_GET['reset'] === '1'): ?>
+        <div class="alert-auth ok mb-3" role="alert">
+          <strong>Kata Sandi Diperbarui</strong>
+          <span>Silakan masuk dengan kata sandi baru Anda.</span>
+        </div>
+        <?php endif; ?>
+
         <form id="loginForm" data-api="../../../backend/api/auth/login.php" novalidate>
           <div class="mb-3">
             <label class="form-label" for="identifier">Email atau Nomor HP</label>
@@ -37,7 +45,7 @@ require_once __DIR__ . '/../../../backend/config/google.php';
           <div class="mb-3">
             <div class="d-flex justify-content-between">
               <label class="form-label" for="password">Kata Sandi</label>
-              <a href="#" class="link-green small">Lupa Kata Sandi?</a>
+              <a href="lupa-password.php" class="link-green small">Lupa Kata Sandi?</a>
             </div>
             <div class="input-icon"><i class="bi bi-lock lead"></i>
               <input type="password" id="password" class="form-control" placeholder="••••••••"
@@ -55,21 +63,20 @@ require_once __DIR__ . '/../../../backend/config/google.php';
               class="bi bi-arrow-right ms-1"></i></button>
         </form>
 
-          <div class="divider">atau masuk dengan</div>
-            <div id="googleBtn" class="d-flex justify-content-center"
-            data-api="../../../backend/api/auth/google.php"
-            data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
-            data-text="continue_with"></div>
-          </div>
-        
-    </form>
+        <div class="divider">atau masuk dengan</div>
+        <div id="googleBtn" class="d-flex justify-content-center"
+             data-api="../../../backend/api/auth/google.php"
+             data-client-id="<?= htmlspecialchars(googleClientId()) ?>"
+             data-text="continue_with"></div>
+      </div><!-- /auth-card -->
 
       <p class="text-center mt-4 mb-2 text-secondary">Belum punya akun? <a href="register.php" class="link-green">Daftar
           Sekarang</a></p>
       <p class="text-center foot"><a href="#" class="text-reset text-decoration-none">Pusat Bantuan</a> &nbsp;•&nbsp; <a
           href="#" class="text-reset text-decoration-none">Syarat &amp; Ketentuan</a></p>
 
-</div></main>
+    </div><!-- /auth-box -->
+  </main>
 
 <div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

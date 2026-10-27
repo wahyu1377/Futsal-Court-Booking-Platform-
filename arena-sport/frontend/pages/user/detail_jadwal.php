@@ -196,7 +196,7 @@ $bulanDari = fn(string $ymd): string => $bulanNama[(int) substr($ymd, 5, 2)] . '
             </div>
             <div class="flex items-center gap-1">
                 <?php if ($user): ?>
-                <a href="<?= $user['role'] === 'owner' ? '../owner/dashboard.php' : 'akun.php' ?>" class="w-10 h-10 flex items-center justify-center rounded-full" title="<?= e($user['name']) ?>">
+                <a href="<?= $user['role'] === 'owner' ? '../owner/akun.php' : 'akun.php' ?>" class="w-10 h-10 flex items-center justify-center rounded-full" title="<?= e($user['name']) ?>">
                     <img src="<?= e(avatarSrc($user['name'], $user['avatar'] ?? null)) ?>" alt="Akun <?= e($user['name']) ?>" class="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm">
                 </a>
                 <?php else: ?>

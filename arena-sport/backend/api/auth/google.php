@@ -30,7 +30,7 @@ function verifyGoogleToken(string $idToken): array {
     $verified = filter_var($p['email_verified'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
     if ($code !== 200 || !is_array($p)
-        || ($p['aud'] ?? '') !== GOOGLE_CLIENT_ID      // token harus untuk aplikasi ini
+        || ($p['aud'] ?? '') !== googleClientId()      // token harus untuk aplikasi ini
         || !$issOk
         || (int)($p['exp'] ?? 0) < time()
         || empty($p['sub']) || empty($p['email']) || !$verified) {
@@ -73,9 +73,23 @@ if ($name === '') $name = strstr($email, '@', true);
 $name = mb_substr($name, 0, 100);
 
 try {
-    $st = $pdo->prepare('INSERT INTO ' . tableFor($role) . ' (full_name, email, google_id) VALUES (?, ?, ?) RETURNING id, full_name');
+    // Catatan: id akun diambil lewat lastInsertId(), bukan "RETURNING id".
+    // Alasannya: RETURNING hanya ada di PostgreSQL, sedangkan lastInsertId()
+    // jalan di PostgreSQL maupun MySQL (pola yang sama dipakai di
+    // api/owner/lapangan.php).
+    $st = $pdo->prepare(
+        'INSERT INTO ' . tableFor($role) . ' (full_name, email, google_id) VALUES (?, ?, ?)'
+    );
     $st->execute([$name, $email, $sub]);
-    loginAs($st->fetch(), $role);
+    $idBaru = (int) $pdo->lastInsertId();
+
+    $st = $pdo->prepare('SELECT id, full_name FROM ' . tableFor($role) . ' WHERE id = ?');
+    $st->execute([$idBaru]);
+    $akunBaru = $st->fetch();
+    if (!$akunBaru) {
+        respond(false, 'Akun gagal dibuat. Coba lagi sebentar lagi.', [], 500);
+    }
+    loginAs($akunBaru, $role);
 } catch (PDOException $e) {
     if ($e->getCode() === '23505') respond(false, 'Akun sudah terdaftar. Coba masuk lagi.', [], 409);
     error_log('Google signup gagal: ' . $e->getMessage());
