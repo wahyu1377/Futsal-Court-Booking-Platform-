@@ -16,10 +16,13 @@ $user        = currentUser();
 $pageTitle   = 'Dashboard Owner';
 $useTailwind = true;
 $extraJs     = '../../assets/js/owner-lapangan.js';
+$halamanAktif = 'dashboard';   // menu aktif pada navigasi bawah
 ?>
 <?php include '../../components/header.php'; ?>
 <link href="../../assets/css/owner.css" rel="stylesheet">
 <link href="../../assets/css/owner-pesanan.css" rel="stylesheet">
+<!-- Navigasi bawah (pola sama dengan halaman akun owner) -->
+<link href="../../assets/css/bottom-nav.css" rel="stylesheet">
 
 <!-- Bar atas -->
 <div class="owner-bar">
@@ -35,14 +38,14 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
       <a href="tambah_lapangan.php" class="btn btn-main btn-sm d-inline-flex align-items-center gap-1">
         <i class="bi bi-plus-lg"></i><span class="d-none d-sm-inline">Tambah</span>
       </a>
-      <a href="../../pages/user/akun.php" class="avatar" title="<?= htmlspecialchars($user['name'] ?? '') ?>">
+      <a href="akun.php" class="avatar" title="<?= htmlspecialchars($user['name'] ?? '') ?>">
         <?= htmlspecialchars(mb_strtoupper(mb_substr($user['name'] ?? 'O', 0, 1))) ?>
       </a>
     </div>
   </div>
 </div>
 
-<main class="container py-3">
+<main class="container py-3" style="padding-bottom:104px">
 
   <!-- Ringkasan lapangan -->
   <div class="row g-3 mb-3">
@@ -112,7 +115,7 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
   </section>
 
   <!-- Judul + tombol tambah (desktop) -->
-  <div class="d-flex justify-content-between align-items-end mb-3">
+  <div class="d-flex justify-content-between align-items-end mb-3" id="lapanganSaya">
     <div>
       <h2 class="fw-bold mb-1" style="font-size:1.15rem">Lapangan Saya</h2>
       <small class="text-muted">Kelola data lapangan yang Anda sewakan</small>
@@ -165,5 +168,8 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
 
 <!-- Skrip bagian Pesanan Masuk (berdiri sendiri, tidak bergantung owner-lapangan.js) -->
 <script src="../../assets/js/owner-pesanan.js"></script>
+
+<!-- Navigasi bawah -->
+<?php include __DIR__ . '/../../components/nav-bottom-owner.php'; ?>
 
 <?php include '../../components/footer.php'; ?>

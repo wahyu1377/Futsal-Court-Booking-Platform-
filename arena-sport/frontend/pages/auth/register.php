@@ -82,10 +82,10 @@ require_once __DIR__ . '/../../../backend/config/google.php';
     </form>
 
     <div class="divider">atau daftar lebih cepat dengan</div>
-   <div id="googleBtn" class="d-flex justify-content-center"
-     data-api="../../../backend/api/auth/google.php"
-     data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
-     signup_with="continue_with"></div>
+    <div id="googleBtn" class="d-flex justify-content-center"
+         data-api="../../../backend/api/auth/google.php"
+         data-client-id="<?= htmlspecialchars(googleClientId()) ?>"
+         data-text="continue_with"></div>
   </div>
 
   <p class="text-center mt-4 mb-2 text-secondary">Sudah punya akun? <a href="login.php" class="link-green">Masuk di sini</a></p>

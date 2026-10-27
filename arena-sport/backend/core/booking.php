@@ -159,7 +159,30 @@ function buatBooking(PDO $pdo, int $userId, array $lapangan, string $tanggal, ar
 // ============================================================
 // MEMBACA PESANAN
 // ============================================================
-const SQL_BOOKING = "
+// Query dasar untuk membaca pesanan.
+//
+// Sebagian sintaks hanya ada di PostgreSQL (mis. AT TIME ZONE, ::int),
+// jadi query-nya dibuat per driver agar halaman ini tetap bisa dibuka
+// di database lokal MySQL.
+function sqlBooking(): string
+{
+    if (db_config()['driver'] === 'mysql') {
+        return "
+    SELECT b.id, b.kode, b.status, b.total, b.metode, b.rincian, b.tanggal, b.created_at, b.payment_url,
+           l.id AS lapangan_id, l.nama AS lapangan_nama, l.jenis, l.kecamatan, l.kota, l.foto,
+           MIN(bs.jam_mulai)   AS jam_mulai,
+           MAX(bs.jam_selesai) AS jam_selesai,
+           CASE WHEN b.status = 'menunggu' AND b.expires_at IS NOT NULL
+                THEN GREATEST(0, TIMESTAMPDIFF(SECOND, NOW(), b.expires_at)) END AS sisa_detik,
+           CASE WHEN b.status = 'dibayar'
+                 AND (b.tanggal + MAX(bs.jam_selesai)) < NOW()
+                THEN 'selesai' ELSE b.status END AS status_tampil
+    FROM booking b
+    JOIN lapangan l ON l.id = b.lapangan_id
+    LEFT JOIN booking_slot bs ON bs.booking_id = b.id";
+    }
+
+    return "
     SELECT b.id, b.kode, b.status, b.total, b.metode, b.rincian, b.tanggal, b.created_at, b.payment_url,
            l.id AS lapangan_id, l.nama AS lapangan_nama, l.jenis, l.kecamatan, l.kota, l.foto,
            MIN(bs.jam_mulai)   AS jam_mulai,
@@ -172,6 +195,7 @@ const SQL_BOOKING = "
     FROM booking b
     JOIN lapangan l ON l.id = b.lapangan_id
     LEFT JOIN booking_slot bs ON bs.booking_id = b.id";
+}
 
 function olahBooking(array $r): array
 {
@@ -188,7 +212,7 @@ function olahBooking(array $r): array
 /** Satu pesanan milik satu pengguna berdasarkan kode, atau null. */
 function ambilBooking(PDO $pdo, string $kode, int $userId): ?array
 {
-    $st = $pdo->prepare(SQL_BOOKING . ' WHERE b.kode = ? AND b.user_id = ? GROUP BY b.id, l.id');
+    $st = $pdo->prepare(sqlBooking() . ' WHERE b.kode = ? AND b.user_id = ? GROUP BY b.id, l.id');
     $st->execute([$kode, $userId]);
     $r = $st->fetch();
     return $r ? olahBooking($r) : null;
@@ -197,7 +221,7 @@ function ambilBooking(PDO $pdo, string $kode, int $userId): ?array
 /** Semua pesanan pengguna, terbaru dulu. */
 function daftarBooking(PDO $pdo, int $userId): array
 {
-    $st = $pdo->prepare(SQL_BOOKING . ' WHERE b.user_id = ? GROUP BY b.id, l.id ORDER BY b.created_at DESC LIMIT 100');
+    $st = $pdo->prepare(sqlBooking() . ' WHERE b.user_id = ? GROUP BY b.id, l.id ORDER BY b.created_at DESC LIMIT 100');
     $st->execute([$userId]);
     return array_map('olahBooking', $st->fetchAll());
 }
@@ -216,15 +240,21 @@ function slotBooking(PDO $pdo, int $bookingId): array
 /** Jumlah pesanan yang masih berjalan (menunggu bayar atau terkonfirmasi dan belum lewat). */
 function hitungBookingAktif(PDO $pdo, int $userId): int
 {
+    // Perbandingan "sudah lewat" memakai waktu lokal Asia/Jakarta.
+    // PostgreSQL perlu AT TIME ZONE, MySQL cukup NOW().
+    $batasWaktu = db_config()['driver'] === 'mysql'
+        ? 'NOW()'
+        : "(now() AT TIME ZONE 'Asia/Jakarta')";
+
     $st = $pdo->prepare(
         "SELECT COUNT(*) FROM (
             SELECT b.id
             FROM booking b JOIN booking_slot bs ON bs.booking_id = b.id
             WHERE b.user_id = ?
               AND ((b.status = 'menunggu' AND b.expires_at > now()) OR b.status = 'dibayar')
-            GROUP BY b.id
+            GROUP BY b.id, b.status, b.tanggal
             HAVING b.status = 'menunggu'
-                OR (b.tanggal + MAX(bs.jam_selesai)) >= (now() AT TIME ZONE 'Asia/Jakarta')
+                OR (b.tanggal + MAX(bs.jam_selesai)) >= $batasWaktu
          ) x"
     );
     $st->execute([$userId]);

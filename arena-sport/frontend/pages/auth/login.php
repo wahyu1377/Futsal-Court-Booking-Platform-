@@ -25,6 +25,14 @@ require_once __DIR__ . '/../../../backend/config/google.php';
           <strong id="alertTitle"></strong><span id="alertText"></span>
         </div>
 
+        <?php // Pesan sukses setelah pengguna selesai mengganti kata sandi ?>
+        <?php if (isset($_GET['reset']) && $_GET['reset'] === '1'): ?>
+        <div class="alert-auth ok mb-3" role="alert">
+          <strong>Kata Sandi Diperbarui</strong>
+          <span>Silakan masuk dengan kata sandi baru Anda.</span>
+        </div>
+        <?php endif; ?>
+
         <form id="loginForm" data-api="../../../backend/api/auth/login.php" novalidate>
           <div class="mb-3">
             <label class="form-label" for="identifier">Email atau Nomor HP</label>
@@ -37,7 +45,7 @@ require_once __DIR__ . '/../../../backend/config/google.php';
           <div class="mb-3">
             <div class="d-flex justify-content-between">
               <label class="form-label" for="password">Kata Sandi</label>
-              <a href="#" class="link-green small">Lupa Kata Sandi?</a>
+              <a href="lupa-password.php" class="link-green small">Lupa Kata Sandi?</a>
             </div>
             <div class="input-icon"><i class="bi bi-lock lead"></i>
               <input type="password" id="password" class="form-control" placeholder="••••••••"
@@ -58,7 +66,7 @@ require_once __DIR__ . '/../../../backend/config/google.php';
         <div class="divider">atau masuk dengan</div>
         <div id="googleBtn" class="d-flex justify-content-center"
              data-api="../../../backend/api/auth/google.php"
-             data-client-id="<?= htmlspecialchars(GOOGLE_CLIENT_ID) ?>"
+             data-client-id="<?= htmlspecialchars(googleClientId()) ?>"
              data-text="continue_with"></div>
       </div><!-- /auth-card -->
 
