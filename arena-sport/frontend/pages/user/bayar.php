@@ -46,6 +46,8 @@ try {
     $sandbox = true;
 }
 ?>
+
+<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

@@ -68,6 +68,8 @@ if ($pesanError === '') {
 if ($pesanError !== '') {
     http_response_code(400);
     ?>
+
+    
     <!DOCTYPE html>
     <html lang="id">
     <head>
@@ -147,6 +149,8 @@ $metodeBayar = [
     ['value'=>'onsite','icon'=>'storefront','label'=>'DP ' . DP_PERSEN . '%, Sisa di Kasir','badge'=>'DP ' . DP_PERSEN . '%','type'=>'warning','desc'=>'DP dibayar online, sisanya dilunasi di kasir lapangan'],
 ];
 ?>
+
+<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

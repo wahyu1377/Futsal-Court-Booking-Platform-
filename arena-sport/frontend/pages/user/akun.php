@@ -92,6 +92,9 @@ function renderMenu(array $items, string $extraClass = ''): void
     echo '</ul>';
 }
 ?>
+
+<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>

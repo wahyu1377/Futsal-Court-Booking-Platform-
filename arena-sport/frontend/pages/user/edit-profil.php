@@ -29,6 +29,8 @@ $nav = [
     'akun'    => ['bi-person-circle',     'Akun',    'akun.php'],
 ];
 ?>
+
+<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

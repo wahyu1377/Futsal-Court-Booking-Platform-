@@ -1,4 +1,5 @@
 <?php /* variabel yang dipakai: $pageTitle */ ?>
+<?php include __DIR__ . '/clarity.php'; ?>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= htmlspecialchars($pageTitle ?? 'Arena Sport') ?> - Arena Sport</title>

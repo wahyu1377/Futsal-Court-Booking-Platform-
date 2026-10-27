@@ -1,4 +1,5 @@
 <?php /* variabel opsional: $pageTitle, $useTailwind */ ?>
+<?php include __DIR__ . '/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>

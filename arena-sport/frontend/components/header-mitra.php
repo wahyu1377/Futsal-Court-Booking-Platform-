@@ -1,6 +1,7 @@
 <?php
 /** Header halaman owner. Variabel: $assets, $data['mitra'] */
 ?>
+<?php include __DIR__ . '/clarity.php'; ?>
 <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur lg:ml-64">
   <div class="mx-auto flex h-[72px] max-w-6xl items-center gap-3 px-4">
     <img src="<?= e($assets) ?>/img/logo.png" alt="Arena Sport" class="h-7 w-auto lg:hidden">

@@ -99,6 +99,8 @@ if ($foto !== '' && !str_contains($foto, '..') && !str_contains($foto, '\\')) {
 $bulanNama = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 $bulanDari = fn(string $ymd): string => $bulanNama[(int) substr($ymd, 5, 2)] . ' ' . substr($ymd, 0, 4);
 ?>
+
+<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
