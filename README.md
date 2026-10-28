@@ -59,7 +59,7 @@ Every item below is implemented in this repository and can be exercised locally 
 | **Dashboard statistics** | Total courts, active courts, average hourly rate, bookings today, bookings waiting for payment, and confirmed revenue for the current month. |
 | **Incoming orders** | Read-only list of bookings for the owner's own courts, with a filter per court and separate "active" / "history" tabs. |
 | **Court CRUD** | Create, update and delete courts: name, sport type, district, city, hourly price, facilities, opening hours, session duration, availability flag and photos. Every query is scoped with `owner_id`, so one owner can never touch another owner's court. |
-| **Photo upload** | Court photos are validated with `getimagesize()` (max 3 MB, JPEG/PNG/WebP), renamed with a random unique filename, and stored in a Git-ignored folder. |
+| **Photo upload** | Court photos are validated with `getimagesize()` (max 3 MB, JPEG/PNG/WebP), resized to a maximum of 1280 px, and renamed with a random unique filename. The file is stored in the database (table `gambar_unggahan`) so the photo is readable from any server - laptop, local server, or production - and additionally kept in a Git-ignored folder as a local copy. All photos are served through `frontend/gambar.php`, which also tolerates differences in letter case between the file name and the database value. |
 | **Owner account pages** | Profile, avatar, password change, notification settings, and help center, with a dedicated bottom navigation for owner pages. |
 
 ### 5. Platform & Security
@@ -431,6 +431,16 @@ Scripts in `arena-sport/backend/sql/` need to be executed by the **table owner**
 | `005_password_reset.mysql.sql` | The same table for a local MySQL/MariaDB (XAMPP) - `AUTO_INCREMENT` + `DATETIME`, no RLS. Use this one when running the project on a local MySQL database. |
 | `006_user_settings.sql`        | Adds the `user_settings` table (notification preferences for regular users, mirroring `owner_settings`), including grants + RLS policy for `arena_app`. Optional: without it the preferences are stored in the browser only. |
 | `006_user_settings.mysql.sql`  | The same table for a local MySQL/MariaDB (XAMPP). |
+| `007_gambar_unggahan.sql`      | Adds the `gambar_unggahan` table that stores owner-uploaded court photos (file content as base64) so a photo uploaded on one machine is visible on every server, including production. It also normalises the letter case of the existing `lapangan.foto` values. Optional: without it the uploads still work, but only on the machine where the photo was uploaded. |
+| `007_gambar_unggahan.mysql.sql` | The same table for a local MySQL/MariaDB (XAMPP) - `MEDIUMTEXT`, no RLS. |
+
+After running `007_gambar_unggahan.sql`, copy the photos that already exist in the asset folder into the database once:
+
+```bash
+php arena-sport/backend/impor-foto.php
+```
+
+The script is idempotent (photos that are already in the database are skipped) and can be run again whenever new photos have to be added.
 
 ---
 

@@ -128,7 +128,7 @@ $halamanAktif = 'dashboard';   // menu aktif pada navigasi bawah
   <!-- Daftar kartu lapangan (diisi oleh JS) -->
   <div id="ownerList" class="row g-3"
        data-api="../../../backend/api/owner/lapangan.php"
-       data-img="../../assets/img/lapangan/"></div>
+       data-img="../../gambar.php?f="></div>
 
 </main>
 

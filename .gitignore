@@ -8,7 +8,9 @@ arena-sport/backend/config/doku.local.php
 arena-sport/frontend/assets/img/avatars/*
 !arena-sport/frontend/assets/img/avatars/.htaccess
 
-# Foto lapangan yang diunggah owner (jangan ikut di-commit)
+# Foto lapangan yang diunggah owner (jangan ikut di-commit).
+# Isi file-nya tetap disimpan di database (tabel gambar_unggahan), jadi foto
+# tetap bisa dibuka dari server mana pun walau folder ini tidak ikut di-deploy.
 arena-sport/frontend/assets/img/lapangan/owner/
 
 # Konfigurasi lokal Claude Code (izin personal, jangan ikut di-commit)

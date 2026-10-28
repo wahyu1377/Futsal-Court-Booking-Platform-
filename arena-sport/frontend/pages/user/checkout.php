@@ -123,11 +123,14 @@ $tanggalObj     = DateTime::createFromFormat('Y-m-d', $tanggalPilih);
 $tanggalDisplay = $hariIndonesia[$tanggalObj->format('D')] . ', ' . $tanggalObj->format('j') . ' '
                 . $bulanIndonesia[(int) $tanggalObj->format('n')] . ' ' . $tanggalObj->format('Y');
 
-// Foto lapangan dari database (folder yang sama dengan beranda dan halaman detail)
+// Foto lapangan dari database.
+// Disajikan lewat frontend/gambar.php supaya foto unggahan owner (yang
+// tersimpan di database) bisa dibuka dari server mana pun.
 $fotoUrl = null;
 $foto    = (string) ($lapangan['foto'] ?? '');
-if ($foto !== '' && !str_contains($foto, '..') && !str_contains($foto, '\\')) {
-    $fotoUrl = '../../assets/img/lapangan/' . implode('/', array_map('rawurlencode', explode('/', $foto)));
+$fotoUtama = trim((string) (explode(',', $foto)[0] ?? ''));
+if ($fotoUtama !== '' && !str_contains($fotoUtama, '..') && !str_contains($fotoUtama, '\\')) {
+    $fotoUrl = '../../gambar.php?f=' . rawurlencode($fotoUtama);
 }
 
 // ============================================================

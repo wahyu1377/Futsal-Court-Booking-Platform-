@@ -89,11 +89,14 @@ if (preg_match('/\b(indoor|outdoor)\b/i', implode(' ', $fasilitasList), $m)) {
     $lingkungan = ucfirst(strtolower($m[1]));
 }
 
-// Foto utama dari kolom lapangan.foto (folder yang sama dengan beranda)
+// Foto utama dari kolom lapangan.foto.
+// Disajikan lewat frontend/gambar.php supaya foto unggahan owner (yang
+// tersimpan di database) bisa dibuka dari server mana pun.
 $fotoUrl = null;
 $foto    = (string) ($lapangan['foto'] ?? '');
-if ($foto !== '' && !str_contains($foto, '..') && !str_contains($foto, '\\')) {
-    $fotoUrl = '../../assets/img/lapangan/' . implode('/', array_map('rawurlencode', explode('/', $foto)));
+$fotoUtama = trim((string) (explode(',', $foto)[0] ?? ''));
+if ($fotoUtama !== '' && !str_contains($fotoUtama, '..') && !str_contains($fotoUtama, '\\')) {
+    $fotoUrl = '../../gambar.php?f=' . rawurlencode($fotoUtama);
 }
 
 $bulanNama = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
