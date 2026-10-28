@@ -150,10 +150,11 @@ $metodeBayar = [
 ];
 ?>
 
-<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+    <?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title><?= e($pageTitle) ?> - Arena Sport</title>

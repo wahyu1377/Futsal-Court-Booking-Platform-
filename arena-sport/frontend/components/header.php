@@ -1,8 +1,9 @@
 <?php /* variabel opsional: $pageTitle, $useTailwind */ ?>
-<?php include __DIR__ . '/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+  <?php include __DIR__ . '/clarity.php'; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= htmlspecialchars($pageTitle ?? 'Arena Sport') ?> - Arena Sport</title>

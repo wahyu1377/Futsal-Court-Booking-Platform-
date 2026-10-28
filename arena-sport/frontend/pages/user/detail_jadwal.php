@@ -100,10 +100,11 @@ $bulanNama = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli
 $bulanDari = fn(string $ymd): string => $bulanNama[(int) substr($ymd, 5, 2)] . ' ' . substr($ymd, 0, 4);
 ?>
 
-<?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+    <?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title><?= e($lapangan['nama']) ?> - Arena Sport</title>
