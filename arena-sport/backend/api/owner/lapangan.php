@@ -19,6 +19,7 @@
 require __DIR__ . '/../../config/database.php';
 require __DIR__ . '/../../core/helper.php';
 require __DIR__ . '/../../core/auth.php';   // isLoggedIn() + session
+require __DIR__ . '/../../core/gambar.php';  // simpan/ambil foto (disk + database)
 
 // Hanya owner yang boleh mengakses API ini
 if (!isLoggedIn() || ($_SESSION['role'] ?? '') !== 'owner') {
@@ -50,22 +51,34 @@ const DAFTAR_FASILITAS = [
 ];
 
 /**
- * Daftar file foto yang tersedia di folder aset (dipakai untuk pilihan foto).
+ * Daftar file foto yang tersedia untuk dipilih owner.
+ *
+ * Sumbernya dua:
+ *   1) file di folder aset (foto bawaan galeri)
+ *   2) foto yang tersimpan di database (hasil unggahan owner), supaya foto
+ *      milik owner itu sendiri bisa dipilih lagi dari mana pun.
  */
 function opsiFoto(string $folder): array
 {
-    if (!is_dir($folder)) return [];
+    $foto = [];
 
-    $files = scandir($folder) ?: [];
-    $foto  = [];
-
-    foreach ($files as $file) {
-        if ($file === '.' || $file === '..') continue;
-        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-        if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-            $foto[] = $file;
+    if (is_dir($folder)) {
+        foreach (scandir($folder) ?: [] as $file) {
+            if ($file === '.' || $file === '..') continue;
+            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                $foto[] = $file;
+            }
         }
     }
+
+    // Foto unggahan yang tersimpan di database (nama relatif, mis. owner/xxx.jpg)
+    foreach (gambarDaftarDb() as $nama) {
+        if (!in_array($nama, $foto, true)) {
+            $foto[] = $nama;
+        }
+    }
+
     sort($foto);
     return $foto;
 }
@@ -114,44 +127,14 @@ function fotoValid(string $foto): bool
 }
 
 /**
- * Simpan file foto yang diunggah owner ke folder aset.
+ * Simpan file foto yang diunggah owner.
+ *
+ * Logika aslinya (validasi + nama unik) ada di backend/core/gambar.php
+ * supaya bisa dipakai juga oleh skrip impor. Foto disimpan ke database
+ * (bisa dibuka dari server mana pun) dan ke folder aset sebagai cadangan.
+ *
  * Mengembalikan nama file relatif (contoh: owner/20261022-ab12cd34.jpg).
  */
-function simpanFotoUnggahan(array $file): ?string
-{
-    $folderAset    = __DIR__ . '/../../../frontend/assets/img/lapangan/';
-    $folderPemilik = $folderAset . 'owner/';
-
-    if (!is_dir($folderPemilik)) {
-        @mkdir($folderPemilik, 0775, true);
-    }
-
-    // Validasi ukuran maksimal 3 MB
-    if ((int) $file['size'] > 3 * 1024 * 1024) {
-        return null;
-    }
-
-    // Validasi isi file benar-benar gambar
-    $info = @getimagesize($file['tmp_name']);
-    if ($info === false) {
-        return null;
-    }
-
-    $petaEkstensi = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    $ekstensi = $petaEkstensi[$info['mime']] ?? null;
-    if ($ekstensi === null) {
-        return null;
-    }
-
-    // Nama file unik supaya tidak menimpa file lain / aman dari nama berbahaya
-    $namaBaru = 'owner/' . date('YmdHis') . '-' . bin2hex(random_bytes(4)) . '.' . $ekstensi;
-
-    if (!move_uploaded_file($file['tmp_name'], $folderAset . $namaBaru)) {
-        return null;
-    }
-
-    return $namaBaru;
-}
 
 /**
  * Validasi data lapangan dari request.
@@ -282,7 +265,7 @@ if ($metode === 'POST' && isset($_FILES['foto'])) {
             continue;
         }
 
-        $tersimpan = simpanFotoUnggahan(['tmp_name' => $tmp, 'size' => $ukuran]);
+        $tersimpan = gambarSimpanUnggahan(['tmp_name' => $tmp, 'size' => $ukuran]);
         if ($tersimpan === null) {
             $gagal[] = 'Foto "' . $namaAsli . '" tidak valid atau lebih besar dari 3 MB';
             continue;

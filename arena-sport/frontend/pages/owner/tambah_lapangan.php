@@ -49,7 +49,7 @@ $extraJs     = '../../assets/js/owner-lapangan.js';
   <form id="formLapangan" novalidate
         data-api="../../../backend/api/owner/lapangan.php"
         data-id="<?= $idEdit > 0 ? $idEdit : 0 ?>"
-        data-img="../../assets/img/lapangan/">
+        data-img="../../gambar.php?f=">
 
     <!-- ================= LANGKAH 1 : INFO DASAR ================= -->
     <section class="langkah-panel aktif" data-panel="1">

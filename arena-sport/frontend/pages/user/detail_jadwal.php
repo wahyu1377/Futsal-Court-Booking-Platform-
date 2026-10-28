@@ -89,19 +89,25 @@ if (preg_match('/\b(indoor|outdoor)\b/i', implode(' ', $fasilitasList), $m)) {
     $lingkungan = ucfirst(strtolower($m[1]));
 }
 
-// Foto utama dari kolom lapangan.foto (folder yang sama dengan beranda)
+// Foto utama dari kolom lapangan.foto.
+// Disajikan lewat frontend/gambar.php supaya foto unggahan owner (yang
+// tersimpan di database) bisa dibuka dari server mana pun.
 $fotoUrl = null;
 $foto    = (string) ($lapangan['foto'] ?? '');
-if ($foto !== '' && !str_contains($foto, '..') && !str_contains($foto, '\\')) {
-    $fotoUrl = '../../assets/img/lapangan/' . implode('/', array_map('rawurlencode', explode('/', $foto)));
+$fotoUtama = trim((string) (explode(',', $foto)[0] ?? ''));
+if ($fotoUtama !== '' && !str_contains($fotoUtama, '..') && !str_contains($fotoUtama, '\\')) {
+    $fotoUrl = '../../gambar.php?f=' . rawurlencode($fotoUtama);
 }
 
 $bulanNama = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 $bulanDari = fn(string $ymd): string => $bulanNama[(int) substr($ymd, 5, 2)] . ' ' . substr($ymd, 0, 4);
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+    <?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title><?= e($lapangan['nama']) ?> - Arena Sport</title>

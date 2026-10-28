@@ -46,9 +46,12 @@ try {
     $sandbox = true;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+    <?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Pembayaran - Arena Sport</title>

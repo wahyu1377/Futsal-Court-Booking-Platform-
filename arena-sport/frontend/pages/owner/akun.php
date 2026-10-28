@@ -120,6 +120,8 @@ function renderMenuOwner(array $items, string $extraClass = ''): void
 <!DOCTYPE html>
 <html lang="id">
 <head>
+  <?php /* Microsoft Clarity (pelacakan halaman) */ ?>
+  <?php include dirname(__DIR__, 2) . '/components/clarity.php'; ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Akun Owner - Arena Sport</title>

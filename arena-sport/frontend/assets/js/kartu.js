@@ -7,8 +7,9 @@ function renderCard(c, IMG, DETAIL) {
   const tags = [cap(c.jenis), ...(c.fasilitas ? c.fasilitas.split(',').map(t => t.trim()).filter(Boolean) : [])].slice(0, 3);
   // Foto pada database boleh lebih dari satu (dipisah koma), yang dipakai adalah foto utama
   const fotoUtama = String(c.foto || '').split(',').map(s => s.trim()).filter(Boolean)[0] || '';
-  // Foto bisa file di folder aset atau URL dari internet
-  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + nama;
+  // Foto bisa file di folder aset, file hasil unggahan owner, atau URL dari internet
+  // Nama file di-encode karena foto dilayani lewat frontend/gambar.php?f=...
+  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + encodeURIComponent(nama);
   const foto = fotoUtama ? `<img src="${esc(urlFoto(fotoUtama))}" alt="${esc(c.nama)}" loading="lazy" onerror="this.remove()">` : '';
   const avail = c.tersedia_hari_ini == 1
     ? '<span class="avail">Tersedia Hari Ini</span>'

@@ -18,7 +18,7 @@ $extraJs   = ['../../assets/js/kartu.js', '../../assets/js/fav-toggle.js', '../.
 
   <div class="row g-3" id="courtList"
        data-api="../../../backend/api/user/lapangan.php?favorit=1"
-       data-img="../../assets/img/lapangan/"
+       data-img="../../gambar.php?f="
        data-detail="detail_jadwal.php"></div>
 
 </main>

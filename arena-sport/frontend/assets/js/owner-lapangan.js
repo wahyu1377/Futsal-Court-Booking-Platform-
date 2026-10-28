@@ -67,8 +67,9 @@ if (listEl) {
   let idHapus = 0;
   const modalHapus = new bootstrap.Modal(document.getElementById('modalHapus'));
 
-  // Foto bisa berupa file di folder aset ATAU URL dari internet
-  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + nama;
+  // Foto bisa berupa file di folder aset, file hasil unggahan owner, atau URL dari internet
+  // Nama file di-encode karena foto dilayani lewat frontend/gambar.php?f=...
+  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + encodeURIComponent(nama);
 
   function carouselFoto(foto, nama) {
     // Satu foto -> gambar tunggal, lebih dari satu -> carousel dengan titik indicator
@@ -250,8 +251,9 @@ if (formEl) {
   // Foto yang dipilih owner: nama file galeri, nama file unggahan, atau URL
   let fotoTerpilih = [];
 
-  // Foto bisa file lokal (folder aset) atau URL dari internet
-  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + nama;
+  // Foto bisa file lokal (folder aset), file unggahan owner, atau URL dari internet
+  // Nama file di-encode karena foto dilayani lewat frontend/gambar.php?f=...
+  const urlFoto = nama => /^https?:\/\//i.test(nama) ? nama : IMG + encodeURIComponent(nama);
 
   /* ---------- Bangun pilihan ---------- */
   function bangunJenis(terpilih) {
